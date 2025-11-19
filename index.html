@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メモ共有アプリ - ログイン</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <h1>🔐 メモ共有アプリ</h1>
+            
+            <!-- セキュリティ警告 -->
+            <div class="warning-box">
+                <h3>⚠️ セキュリティに関する注意</h3>
+                <p>このアプリケーションは機密情報の保存には適していません。</p>
+                <ul>
+                    <li>パスワード、クレジットカード番号などの機密情報は入力しないでください</li>
+                    <li>重要な情報を保存する場合は、別途暗号化サービスを使用してください</li>
+                    <li>パスコードは定期的に変更することを推奨します</li>
+                </ul>
+            </div>
+
+            <!-- ログインフォーム -->
+            <div class="form-container">
+                <h2>ログイン</h2>
+                <p>12桁のパスコードを入力してください</p>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="passcode">パスコード (12桁)</label>
+                        <input 
+                            type="text" 
+                            id="passcode" 
+                            name="passcode" 
+                            maxlength="12" 
+                            pattern="[0-9]{12}" 
+                            placeholder="例: 123456789012"
+                            required
+                        >
+                        <small>初回ログイン時は新しいパスコードが作成されます</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">ログイン</button>
+                </form>
+                <div id="message" class="message"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="supabase-client.js"></script>
+    <script src="app.js"></script>
+    <script>
+        /**
+         * ログインフォームの処理
+         * 機能: ユーザーがパスコードでログインできるようにする
+         * 作成理由: 12桁のパスコードでセキュアなログインを実現するため
+         */
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // パスコードを取得
+            const passcode = document.getElementById('passcode').value;
+            const messageDiv = document.getElementById('message');
+            
+            // バリデーション
+            if (passcode.length !== 12 || !/^\d{12}$/.test(passcode)) {
+                messageDiv.textContent = 'パスコードは12桁の数字で入力してください';
+                messageDiv.className = 'message error';
+                return;
+            }
+            
+            try {
+                // ログイン処理
+                messageDiv.textContent = 'ログイン中...';
+                messageDiv.className = 'message';
+                
+                const result = await login(passcode);
+                
+                if (result.success) {
+                    messageDiv.textContent = 'ログイン成功！';
+                    messageDiv.className = 'message success';
+                    
+                    // ユーザーIDをセッションストレージに保存
+                    sessionStorage.setItem('userId', result.userId);
+                    sessionStorage.setItem('passcode', passcode);
+                    
+                    // メモ一覧画面に遷移
+                    setTimeout(() => {
+                        window.location.href = 'app.html';
+                    }, 500);
+                } else {
+                    messageDiv.textContent = result.message || 'ログインに失敗しました';
+                    messageDiv.className = 'message error';
+                }
+            } catch (error) {
+                console.error('ログインエラー:', error);
+                messageDiv.textContent = 'ログイン処理中にエラーが発生しました';
+                messageDiv.className = 'message error';
+            }
+        });
+    </script>
+</body>
+</html>

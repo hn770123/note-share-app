@@ -1,0 +1,604 @@
+/**
+ * メモ共有アプリのスタイルシート
+ * 機能: アプリケーション全体のデザインとレイアウト
+ * 作成理由: ユーザーフレンドリーなUIを提供するため
+ */
+
+/* ===============================================
+   基本設定
+   =============================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* カラーパレット */
+    --primary-color: #4a90e2;
+    --secondary-color: #7b8a8b;
+    --success-color: #27ae60;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    
+    /* 背景色 */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f7fa;
+    --bg-dark: #2c3e50;
+    
+    /* テキスト色 */
+    --text-primary: #2c3e50;
+    --text-secondary: #7f8c8d;
+    --text-light: #ffffff;
+    
+    /* ボーダー */
+    --border-color: #dfe6e9;
+    --border-radius: 8px;
+    
+    /* シャドウ */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+    
+    /* スペーシング */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* ===============================================
+   ログイン画面
+   =============================================== */
+.container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-lg);
+}
+
+.login-container {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-xl);
+    max-width: 600px;
+    width: 100%;
+}
+
+.login-container h1 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-lg);
+    font-size: 2rem;
+}
+
+.warning-box {
+    background-color: #fff3cd;
+    border: 2px solid var(--warning-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.warning-box h3 {
+    color: var(--warning-color);
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.1rem;
+}
+
+.warning-box p {
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+.warning-box ul {
+    margin-left: var(--spacing-lg);
+    color: var(--text-primary);
+}
+
+.warning-box li {
+    margin-bottom: var(--spacing-xs);
+}
+
+.form-container {
+    margin-top: var(--spacing-lg);
+}
+
+.form-container h2 {
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+.form-container > p {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-secondary);
+}
+
+/* ===============================================
+   フォーム要素
+   =============================================== */
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-group input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.form-group small {
+    display: block;
+    margin-top: var(--spacing-xs);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* ===============================================
+   ボタン
+   =============================================== */
+.btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-block;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+}
+
+.btn-primary:hover {
+    background-color: #3a7bc8;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: var(--text-light);
+}
+
+.btn-secondary:hover {
+    background-color: #6a7879;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    color: var(--text-light);
+}
+
+.btn-success:hover {
+    background-color: #229954;
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: var(--text-light);
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+}
+
+/* ===============================================
+   メッセージ
+   =============================================== */
+.message {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-weight: 500;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* ===============================================
+   アプリ画面
+   =============================================== */
+.app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-header {
+    background-color: var(--bg-primary);
+    border-bottom: 2px solid var(--border-color);
+    padding: var(--spacing-md) var(--spacing-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.app-header h1 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.main-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ===============================================
+   サイドバー（メモ一覧）
+   =============================================== */
+.sidebar {
+    width: 300px;
+    background-color: var(--bg-primary);
+    border-right: 2px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    padding: var(--spacing-md);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.sidebar-header h2 {
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.25rem;
+}
+
+.sidebar-header .btn {
+    width: 100%;
+}
+
+.note-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-sm);
+}
+
+.note-item {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-sm);
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border: 2px solid transparent;
+}
+
+.note-item:hover {
+    background-color: var(--bg-secondary);
+}
+
+.note-item.active {
+    background-color: #e3f2fd;
+    border-color: var(--primary-color);
+}
+
+.note-item-title {
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-primary);
+}
+
+.note-item-date {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.empty-message {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: var(--spacing-lg);
+}
+
+/* ===============================================
+   アクセスログ
+   =============================================== */
+.access-log-section {
+    border-top: 2px solid var(--border-color);
+    padding: var(--spacing-md);
+}
+
+.access-log-section h3 {
+    margin-bottom: var(--spacing-sm);
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.access-log {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.log-item {
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.875rem;
+}
+
+.log-item:last-child {
+    border-bottom: none;
+}
+
+.log-action {
+    display: inline-block;
+    padding: 2px 8px;
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    margin-right: var(--spacing-xs);
+}
+
+.log-note {
+    color: var(--text-primary);
+    margin-right: var(--spacing-xs);
+}
+
+.log-date {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+/* ===============================================
+   メモエディタ
+   =============================================== */
+.note-editor {
+    flex: 1;
+    background-color: var(--bg-primary);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.no-note-selected {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.no-note-selected p {
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+}
+
+.note-editor-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.note-header {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.note-title-input {
+    flex: 1;
+    border: 2px solid transparent;
+    padding: var(--spacing-sm);
+    font-size: 1.5rem;
+    font-weight: 600;
+    background-color: transparent;
+    transition: border-color 0.3s;
+}
+
+.note-title-input:not([readonly]):focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+}
+
+.note-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.note-content {
+    flex: 1;
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+}
+
+.note-view {
+    padding: var(--spacing-md);
+    line-height: 1.8;
+}
+
+.note-view h1, .note-view h2, .note-view h3 {
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+.note-view h1 {
+    font-size: 2rem;
+}
+
+.note-view h2 {
+    font-size: 1.5rem;
+}
+
+.note-view h3 {
+    font-size: 1.25rem;
+}
+
+.note-view p {
+    margin-bottom: var(--spacing-md);
+}
+
+.note-view ul, .note-view ol {
+    margin-left: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.note-view code {
+    background-color: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+.note-view pre {
+    background-color: var(--bg-secondary);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    overflow-x: auto;
+    margin-bottom: var(--spacing-md);
+}
+
+.note-view pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+.note-view blockquote {
+    border-left: 4px solid var(--primary-color);
+    padding-left: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    color: var(--text-secondary);
+}
+
+.note-textarea {
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    font-size: 1rem;
+    font-family: 'Courier New', monospace;
+    resize: none;
+}
+
+.note-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* ===============================================
+   モーダル
+   =============================================== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xl);
+    max-width: 500px;
+    width: 90%;
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-content h2 {
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-primary);
+}
+
+.modal-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: flex-end;
+    margin-top: var(--spacing-lg);
+}
+
+/* ===============================================
+   レスポンシブデザイン
+   =============================================== */
+@media (max-width: 768px) {
+    .app-header {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid var(--border-color);
+        max-height: 40vh;
+    }
+    
+    .note-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .note-actions {
+        justify-content: space-between;
+    }
+}
