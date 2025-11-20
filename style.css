@@ -159,6 +159,19 @@ body {
     font-size: 0.875rem;
 }
 
+.passcode-input-group {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.passcode-input-group input {
+    flex: 1;
+}
+
+.passcode-input-group .btn {
+    white-space: nowrap;
+}
+
 /* ===============================================
    ボタン
    =============================================== */
@@ -368,6 +381,10 @@ body {
     border-bottom: none;
 }
 
+.log-header {
+    margin-bottom: var(--spacing-xs);
+}
+
 .log-action {
     display: inline-block;
     padding: 2px 8px;
@@ -386,6 +403,16 @@ body {
 .log-date {
     color: var(--text-secondary);
     font-size: 0.75rem;
+}
+
+.log-connection-info {
+    margin-top: var(--spacing-xs);
+    padding: var(--spacing-xs);
+    background-color: var(--bg-secondary);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
 }
 
 /* ===============================================

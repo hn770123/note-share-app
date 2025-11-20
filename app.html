@@ -26,6 +26,7 @@
                 <div class="sidebar-header">
                     <h2>メモ一覧</h2>
                     <button id="newNoteBtn" class="btn btn-primary">+ 新規作成</button>
+                    <button id="deleteAllNotesBtn" class="btn btn-danger" style="margin-top: 8px;">🗑️ 全メモ削除</button>
                 </div>
                 
                 <div class="note-list" id="noteList">
@@ -161,6 +162,7 @@
          */
         function setupEventListeners() {
             document.getElementById('newNoteBtn').addEventListener('click', createNewNote);
+            document.getElementById('deleteAllNotesBtn').addEventListener('click', deleteAllNotesConfirm);
             document.getElementById('editBtn').addEventListener('click', enterEditMode);
             document.getElementById('saveBtn').addEventListener('click', saveNote);
             document.getElementById('cancelBtn').addEventListener('click', cancelEdit);
@@ -377,6 +379,41 @@
                 }
             }
         }
+
+        /**
+         * 全メモを削除（確認ダイアログ付き）
+         * 機能: ユーザーの全メモを削除
+         * 作成理由: ユーザーがすべてのメモを一括削除できるようにするため
+         */
+        async function deleteAllNotesConfirm() {
+            const userId = sessionStorage.getItem('userId');
+            
+            // 二重確認
+            if (!confirm('⚠️ 警告\n\nすべてのメモを削除しますか？\nこの操作は取り消せません。')) {
+                return;
+            }
+            
+            if (!confirm('本当に削除してもよろしいですか？\nもう一度確認してください。')) {
+                return;
+            }
+            
+            // 削除実行
+            const result = await deleteAllNotes(userId);
+            
+            if (result.success) {
+                alert(result.message);
+                
+                // UIをリセット
+                currentNoteId = null;
+                document.getElementById('noNoteSelected').style.display = 'block';
+                document.getElementById('noteEditorContent').style.display = 'none';
+                
+                await loadNotes();
+                await loadAccessLog();
+            } else {
+                alert('エラー: ' + result.message);
+            }
+        }
         
         /**
          * アクセスログを読み込む
@@ -399,10 +436,27 @@
             logs.slice(0, 10).forEach(log => {
                 const logItem = document.createElement('div');
                 logItem.className = 'log-item';
+                
+                // 接続元情報を構築
+                let connectionInfo = '';
+                if (log.browser || log.os || log.device) {
+                    connectionInfo = `<div class="log-connection-info">`;
+                    if (log.browser) connectionInfo += `🌐 ${log.browser} `;
+                    if (log.os) connectionInfo += `💻 ${log.os} `;
+                    if (log.device) connectionInfo += `📱 ${log.device}`;
+                    if (log.ip_address && log.ip_address !== 'Unknown') {
+                        connectionInfo += `<br>🔗 IP: ${log.ip_address}`;
+                    }
+                    connectionInfo += `</div>`;
+                }
+                
                 logItem.innerHTML = `
-                    <span class="log-action">${log.action}</span>
-                    <span class="log-note">${escapeHtml(log.note_title || '削除済み')}</span>
-                    <span class="log-date">${formatDate(log.created_at)}</span>
+                    <div class="log-header">
+                        <span class="log-action">${log.action}</span>
+                        <span class="log-note">${escapeHtml(log.note_title || '削除済み')}</span>
+                        <span class="log-date">${formatDate(log.created_at)}</span>
+                    </div>
+                    ${connectionInfo}
                 `;
                 accessLog.appendChild(logItem);
             });
