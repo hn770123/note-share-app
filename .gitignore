@@ -1,0 +1,23 @@
+# 依存関係とビルド成果物
+node_modules/
+dist/
+build/
+
+# 環境設定ファイル
+.env
+.env.local
+
+# エディタ設定
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS生成ファイル
+.DS_Store
+Thumbs.db
+
+# ログファイル
+*.log
+npm-debug.log*

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メモ共有アプリ - メモ管理</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Markdown to HTML変換ライブラリ -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- ヘッダー -->
+        <header class="app-header">
+            <h1>📝 メモ管理</h1>
+            <div class="header-actions">
+                <button id="changePasscodeBtn" class="btn btn-secondary">パスコード変更</button>
+                <button id="logoutBtn" class="btn btn-secondary">ログアウト</button>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <!-- サイドバー: メモ一覧 -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2>メモ一覧</h2>
+                    <button id="newNoteBtn" class="btn btn-primary">+ 新規作成</button>
+                </div>
+                
+                <div class="note-list" id="noteList">
+                    <!-- メモ一覧がここに表示される -->
+                </div>
+
+                <!-- アクセスログ -->
+                <div class="access-log-section">
+                    <h3>📊 アクセスログ</h3>
+                    <div id="accessLog" class="access-log">
+                        <!-- ログがここに表示される -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- メインエリア: メモ編集 -->
+            <main class="note-editor">
+                <div id="noNoteSelected" class="no-note-selected">
+                    <p>メモを選択するか、新規作成してください</p>
+                </div>
+
+                <div id="noteEditorContent" class="note-editor-content" style="display: none;">
+                    <div class="note-header">
+                        <input 
+                            type="text" 
+                            id="noteTitle" 
+                            placeholder="メモのタイトル" 
+                            class="note-title-input"
+                            readonly
+                        >
+                        <div class="note-actions">
+                            <button id="editBtn" class="btn btn-primary">編集</button>
+                            <button id="saveBtn" class="btn btn-success" style="display: none;">保存</button>
+                            <button id="cancelBtn" class="btn btn-secondary" style="display: none;">キャンセル</button>
+                            <button id="deleteBtn" class="btn btn-danger">削除</button>
+                        </div>
+                    </div>
+
+                    <div class="note-content">
+                        <!-- 閲覧モード -->
+                        <div id="noteView" class="note-view">
+                            <!-- Markdownレンダリング結果がここに表示される -->
+                        </div>
+                        
+                        <!-- 編集モード -->
+                        <textarea 
+                            id="noteContent" 
+                            class="note-textarea" 
+                            placeholder="ここにメモを入力してください（Markdown形式対応）"
+                            style="display: none;"
+                        ></textarea>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- パスコード変更モーダル -->
+    <div id="changePasscodeModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>パスコード変更</h2>
+            <form id="changePasscodeForm">
+                <div class="form-group">
+                    <label for="newPasscode">新しいパスコード (12桁)</label>
+                    <input 
+                        type="text" 
+                        id="newPasscode" 
+                        maxlength="12" 
+                        pattern="[0-9]{12}" 
+                        placeholder="例: 123456789012"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="confirmPasscode">パスコード確認</label>
+                    <input 
+                        type="text" 
+                        id="confirmPasscode" 
+                        maxlength="12" 
+                        pattern="[0-9]{12}" 
+                        placeholder="もう一度入力してください"
+                        required
+                    >
+                </div>
+                <div id="passcodeMessage" class="message"></div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">変更</button>
+                    <button type="button" id="cancelPasscodeBtn" class="btn btn-secondary">キャンセル</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="supabase-client.js"></script>
+    <script src="app.js"></script>
+    <script>
+        /**
+         * アプリケーションメインロジック
+         * 機能: メモの表示、編集、保存、削除などの管理
+         * 作成理由: ユーザーがメモを簡単に管理できるようにするため
+         */
+        
+        // グローバル変数
+        let currentNoteId = null; // 現在選択されているメモのID
+        let isEditMode = false; // 編集モード状態
+        let originalContent = ''; // 編集前の内容（キャンセル用）
+        let originalTitle = ''; // 編集前のタイトル（キャンセル用）
+        
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', async () => {
+            // ログインチェック
+            const userId = sessionStorage.getItem('userId');
+            if (!userId) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // データを読み込み
+            await loadNotes();
+            await loadAccessLog();
+            
+            // イベントリスナーの設定
+            setupEventListeners();
+            
+            // 定期的にログを更新（10秒ごと）
+            setInterval(loadAccessLog, 10000);
+        });
+        
+        /**
+         * イベントリスナーの設定
+         * 機能: ボタンやフォームのイベントハンドラを登録
+         * 作成理由: ユーザー操作に応答するため
+         */
+        function setupEventListeners() {
+            document.getElementById('newNoteBtn').addEventListener('click', createNewNote);
+            document.getElementById('editBtn').addEventListener('click', enterEditMode);
+            document.getElementById('saveBtn').addEventListener('click', saveNote);
+            document.getElementById('cancelBtn').addEventListener('click', cancelEdit);
+            document.getElementById('deleteBtn').addEventListener('click', deleteNote);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('changePasscodeBtn').addEventListener('click', showChangePasscodeModal);
+            document.getElementById('cancelPasscodeBtn').addEventListener('click', hideChangePasscodeModal);
+            document.getElementById('changePasscodeForm').addEventListener('submit', changePasscode);
+        }
+        
+        /**
+         * メモ一覧を読み込む
+         * 機能: Supabaseからメモを取得して表示
+         * 作成理由: ユーザーのメモ一覧を表示するため
+         */
+        async function loadNotes() {
+            const userId = sessionStorage.getItem('userId');
+            const notes = await getNotes(userId);
+            
+            const noteList = document.getElementById('noteList');
+            noteList.innerHTML = '';
+            
+            if (notes.length === 0) {
+                noteList.innerHTML = '<p class="empty-message">メモがありません</p>';
+                return;
+            }
+            
+            notes.forEach(note => {
+                const noteItem = document.createElement('div');
+                noteItem.className = 'note-item';
+                if (note.id === currentNoteId) {
+                    noteItem.classList.add('active');
+                }
+                
+                noteItem.innerHTML = `
+                    <div class="note-item-title">${escapeHtml(note.title)}</div>
+                    <div class="note-item-date">${formatDate(note.updated_at)}</div>
+                `;
+                
+                noteItem.addEventListener('click', () => selectNote(note));
+                noteList.appendChild(noteItem);
+            });
+        }
+        
+        /**
+         * メモを選択して表示
+         * 機能: 選択されたメモの内容を表示エリアに表示
+         * 作成理由: ユーザーがメモの内容を確認できるようにするため
+         */
+        async function selectNote(note) {
+            if (isEditMode) {
+                if (!confirm('編集中の内容が失われますが、よろしいですか？')) {
+                    return;
+                }
+                exitEditMode();
+            }
+            
+            currentNoteId = note.id;
+            
+            // UIの表示
+            document.getElementById('noNoteSelected').style.display = 'none';
+            document.getElementById('noteEditorContent').style.display = 'block';
+            
+            // メモの内容を表示
+            document.getElementById('noteTitle').value = note.title;
+            document.getElementById('noteContent').value = note.content || '';
+            
+            // Markdownをレンダリング
+            const noteView = document.getElementById('noteView');
+            noteView.innerHTML = marked.parse(note.content || '');
+            noteView.style.display = 'block';
+            
+            // メモ一覧のアクティブ状態を更新
+            await loadNotes();
+            
+            // アクセスログを記録
+            const userId = sessionStorage.getItem('userId');
+            await logAccess(userId, note.id, '閲覧');
+            await loadAccessLog();
+        }
+        
+        /**
+         * 新規メモを作成
+         * 機能: 空のメモを作成して編集モードに入る
+         * 作成理由: ユーザーが新しいメモを作成できるようにするため
+         */
+        async function createNewNote() {
+            if (isEditMode) {
+                if (!confirm('編集中の内容が失われますが、よろしいですか？')) {
+                    return;
+                }
+                exitEditMode();
+            }
+            
+            const userId = sessionStorage.getItem('userId');
+            const title = `新しいメモ ${new Date().toLocaleString('ja-JP')}`;
+            
+            // 新規メモを作成
+            const newNote = await createNote(userId, title, '');
+            
+            if (newNote) {
+                currentNoteId = newNote.id;
+                await loadNotes();
+                await selectNote(newNote);
+                enterEditMode();
+            }
+        }
+        
+        /**
+         * 編集モードに入る
+         * 機能: メモを編集可能な状態にする
+         * 作成理由: ユーザーがメモの内容を編集できるようにするため
+         */
+        function enterEditMode() {
+            isEditMode = true;
+            
+            // 元の内容を保存（キャンセル用）
+            originalTitle = document.getElementById('noteTitle').value;
+            originalContent = document.getElementById('noteContent').value;
+            
+            // UI切り替え
+            document.getElementById('noteTitle').readOnly = false;
+            document.getElementById('noteView').style.display = 'none';
+            document.getElementById('noteContent').style.display = 'block';
+            
+            document.getElementById('editBtn').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'inline-block';
+            document.getElementById('cancelBtn').style.display = 'inline-block';
+            document.getElementById('deleteBtn').style.display = 'none';
+        }
+        
+        /**
+         * 編集モードを終了
+         * 機能: 編集モードから閲覧モードに戻る
+         * 作成理由: 編集完了後に通常表示に戻すため
+         */
+        function exitEditMode() {
+            isEditMode = false;
+            
+            // UI切り替え
+            document.getElementById('noteTitle').readOnly = true;
+            document.getElementById('noteView').style.display = 'block';
+            document.getElementById('noteContent').style.display = 'none';
+            
+            document.getElementById('editBtn').style.display = 'inline-block';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+            document.getElementById('deleteBtn').style.display = 'inline-block';
+        }
+        
+        /**
+         * メモを保存
+         * 機能: 編集したメモをSupabaseに保存
+         * 作成理由: ユーザーの編集内容を永続化するため
+         */
+        async function saveNote() {
+            const title = document.getElementById('noteTitle').value.trim();
+            const content = document.getElementById('noteContent').value;
+            
+            if (!title) {
+                alert('タイトルを入力してください');
+                return;
+            }
+            
+            // メモを更新
+            const updated = await updateNote(currentNoteId, title, content);
+            
+            if (updated) {
+                // Markdownをレンダリング
+                const noteView = document.getElementById('noteView');
+                noteView.innerHTML = marked.parse(content || '');
+                
+                exitEditMode();
+                await loadNotes();
+                
+                // アクセスログを記録
+                const userId = sessionStorage.getItem('userId');
+                await logAccess(userId, currentNoteId, '編集');
+                await loadAccessLog();
+            }
+        }
+        
+        /**
+         * 編集をキャンセル
+         * 機能: 編集内容を破棄して元の状態に戻す
+         * 作成理由: ユーザーが編集をやり直せるようにするため
+         */
+        function cancelEdit() {
+            if (confirm('編集内容を破棄しますか？')) {
+                // 元の内容に戻す
+                document.getElementById('noteTitle').value = originalTitle;
+                document.getElementById('noteContent').value = originalContent;
+                
+                exitEditMode();
+            }
+        }
+        
+        /**
+         * メモを削除
+         * 機能: 選択中のメモを削除
+         * 作成理由: 不要なメモを削除できるようにするため
+         */
+        async function deleteNote() {
+            if (confirm('このメモを削除しますか？')) {
+                const deleted = await deleteNoteById(currentNoteId);
+                
+                if (deleted) {
+                    currentNoteId = null;
+                    document.getElementById('noNoteSelected').style.display = 'block';
+                    document.getElementById('noteEditorContent').style.display = 'none';
+                    
+                    await loadNotes();
+                    await loadAccessLog();
+                }
+            }
+        }
+        
+        /**
+         * アクセスログを読み込む
+         * 機能: Supabaseからアクセスログを取得して表示
+         * 作成理由: ユーザーの活動履歴を表示するため
+         */
+        async function loadAccessLog() {
+            const userId = sessionStorage.getItem('userId');
+            const logs = await getAccessLog(userId);
+            
+            const accessLog = document.getElementById('accessLog');
+            accessLog.innerHTML = '';
+            
+            if (logs.length === 0) {
+                accessLog.innerHTML = '<p class="empty-message">ログがありません</p>';
+                return;
+            }
+            
+            // 最新10件のログを表示
+            logs.slice(0, 10).forEach(log => {
+                const logItem = document.createElement('div');
+                logItem.className = 'log-item';
+                logItem.innerHTML = `
+                    <span class="log-action">${log.action}</span>
+                    <span class="log-note">${escapeHtml(log.note_title || '削除済み')}</span>
+                    <span class="log-date">${formatDate(log.created_at)}</span>
+                `;
+                accessLog.appendChild(logItem);
+            });
+        }
+        
+        /**
+         * ログアウト
+         * 機能: セッション情報をクリアしてログイン画面に戻る
+         * 作成理由: ユーザーがログアウトできるようにするため
+         */
+        function logout() {
+            if (confirm('ログアウトしますか？')) {
+                sessionStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }
+        
+        /**
+         * パスコード変更モーダルを表示
+         * 機能: パスコード変更用のダイアログを表示
+         * 作成理由: ユーザーがパスコードを変更できるようにするため
+         */
+        function showChangePasscodeModal() {
+            document.getElementById('changePasscodeModal').style.display = 'flex';
+            document.getElementById('newPasscode').value = '';
+            document.getElementById('confirmPasscode').value = '';
+            document.getElementById('passcodeMessage').textContent = '';
+        }
+        
+        /**
+         * パスコード変更モーダルを非表示
+         * 機能: パスコード変更ダイアログを閉じる
+         * 作成理由: ユーザーがキャンセルできるようにするため
+         */
+        function hideChangePasscodeModal() {
+            document.getElementById('changePasscodeModal').style.display = 'none';
+        }
+        
+        /**
+         * パスコードを変更
+         * 機能: 新しいパスコードをSupabaseに保存
+         * 作成理由: セキュリティ維持のためパスコード変更を可能にするため
+         */
+        async function changePasscode(e) {
+            e.preventDefault();
+            
+            const newPasscode = document.getElementById('newPasscode').value;
+            const confirmPasscode = document.getElementById('confirmPasscode').value;
+            const messageDiv = document.getElementById('passcodeMessage');
+            
+            // バリデーション
+            if (newPasscode.length !== 12 || !/^\d{12}$/.test(newPasscode)) {
+                messageDiv.textContent = 'パスコードは12桁の数字で入力してください';
+                messageDiv.className = 'message error';
+                return;
+            }
+            
+            if (newPasscode !== confirmPasscode) {
+                messageDiv.textContent = 'パスコードが一致しません';
+                messageDiv.className = 'message error';
+                return;
+            }
+            
+            // パスコード変更処理
+            const userId = sessionStorage.getItem('userId');
+            const result = await updatePasscode(userId, newPasscode);
+            
+            if (result.success) {
+                messageDiv.textContent = 'パスコードを変更しました';
+                messageDiv.className = 'message success';
+                
+                // セッションストレージを更新
+                sessionStorage.setItem('passcode', newPasscode);
+                
+                setTimeout(() => {
+                    hideChangePasscodeModal();
+                }, 1500);
+            } else {
+                messageDiv.textContent = result.message || 'パスコード変更に失敗しました';
+                messageDiv.className = 'message error';
+            }
+        }
+        
+        /**
+         * HTMLエスケープ
+         * 機能: XSS攻撃を防ぐためHTMLをエスケープ
+         * 作成理由: セキュリティ対策のため
+         */
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        /**
+         * 日付をフォーマット
+         * 機能: ISO日付を読みやすい形式に変換
+         * 作成理由: ユーザーに分かりやすい日時表示を提供するため
+         */
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('ja-JP', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+</body>
+</html>
