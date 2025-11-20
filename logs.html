@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メモ共有アプリ - ログ確認</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ヘッダー -->
+        <header class="app-header">
+            <h1>📊 アクセスログ</h1>
+            <div class="header-actions">
+                <button id="backBtn" class="btn btn-secondary">← メモ管理に戻る</button>
+                <button id="logoutBtn" class="btn btn-secondary">ログアウト</button>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <div class="logs-container">
+            <div class="logs-header">
+                <div>
+                    <p style="color: var(--text-secondary); margin-top: var(--spacing-xs);">
+                        アクセス履歴の詳細情報を表示しています
+                    </p>
+                </div>
+                <div class="logs-actions">
+                    <button id="refreshBtn" class="btn btn-primary">🔄 更新</button>
+                    <button id="deleteOldLogsBtn" class="btn btn-danger">🗑️ 古いログ削除 (14日以前)</button>
+                </div>
+            </div>
+
+            <div class="logs-list" id="logsList">
+                <!-- ログがここに表示される -->
+            </div>
+        </div>
+    </div>
+
+    <script src="supabase-client.js"></script>
+    <script src="app.js"></script>
+    <script>
+        /**
+         * ログページメインロジック
+         * 機能: アクセスログの詳細表示と管理
+         * 作成理由: ユーザーが詳細なログ情報を確認できるようにするため
+         */
+        
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', async () => {
+            // ログインチェック
+            const userId = sessionStorage.getItem('userId');
+            if (!userId) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // ログを読み込み
+            await loadAllLogs();
+            
+            // イベントリスナーの設定
+            setupEventListeners();
+        });
+        
+        /**
+         * イベントリスナーの設定
+         * 機能: ボタンのイベントハンドラを登録
+         * 作成理由: ユーザー操作に応答するため
+         */
+        function setupEventListeners() {
+            document.getElementById('backBtn').addEventListener('click', () => {
+                window.location.href = 'app.html';
+            });
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('refreshBtn').addEventListener('click', loadAllLogs);
+            document.getElementById('deleteOldLogsBtn').addEventListener('click', deleteOldLogsConfirm);
+        }
+        
+        /**
+         * すべてのログを読み込む
+         * 機能: Supabaseからすべてのアクセスログを取得して表示
+         * 作成理由: ユーザーの活動履歴を詳細に表示するため
+         */
+        async function loadAllLogs() {
+            const userId = sessionStorage.getItem('userId');
+            const logs = await getAccessLog(userId);
+            
+            const logsList = document.getElementById('logsList');
+            logsList.innerHTML = '';
+            
+            if (logs.length === 0) {
+                logsList.innerHTML = '<p class="empty-message" style="text-align: center; padding: var(--spacing-xl);">ログがありません</p>';
+                return;
+            }
+            
+            // すべてのログを表示
+            logs.forEach(log => {
+                const logItem = document.createElement('div');
+                logItem.className = 'log-item';
+                
+                logItem.innerHTML = `
+                    <div class="log-header">
+                        <span class="log-action">${escapeHtml(log.action)}</span>
+                        <span class="log-note">メモ: ${escapeHtml(log.note_title || '削除済み')}</span>
+                        <span class="log-date">${formatDate(log.created_at)}</span>
+                    </div>
+                    <div class="log-details">
+                        <div class="log-detail-item">
+                            <span>🌐 <strong>ブラウザ:</strong></span>
+                            <span>${escapeHtml(log.browser || 'Unknown')}</span>
+                        </div>
+                        <div class="log-detail-item">
+                            <span>💻 <strong>OS:</strong></span>
+                            <span>${escapeHtml(log.os || 'Unknown')}</span>
+                        </div>
+                        <div class="log-detail-item">
+                            <span>📱 <strong>デバイス:</strong></span>
+                            <span>${escapeHtml(log.device || 'Unknown')}</span>
+                        </div>
+                        <div class="log-detail-item">
+                            <span>🔗 <strong>IPアドレス:</strong></span>
+                            <span>${escapeHtml(log.ip_address || 'Unknown')}</span>
+                        </div>
+                        <div class="log-detail-item" style="grid-column: 1 / -1;">
+                            <span>🔍 <strong>User Agent:</strong></span>
+                            <span style="word-break: break-all; font-size: 0.75rem;">${escapeHtml(log.user_agent || 'Unknown')}</span>
+                        </div>
+                    </div>
+                `;
+                logsList.appendChild(logItem);
+            });
+        }
+        
+        /**
+         * 古いログを削除（確認ダイアログ付き）
+         * 機能: 14日より前のログを削除
+         * 作成理由: ログデータの肥大化を防ぐため
+         */
+        async function deleteOldLogsConfirm() {
+            if (!confirm('⚠️ 確認\n\n14日より前のログを削除しますか？\nこの操作は取り消せません。')) {
+                return;
+            }
+            
+            const userId = sessionStorage.getItem('userId');
+            const result = await deleteOldLogs(userId);
+            
+            if (result.success) {
+                alert(result.message);
+                await loadAllLogs();
+            } else {
+                alert('エラー: ' + result.message);
+            }
+        }
+        
+        /**
+         * ログアウト
+         * 機能: セッション情報をクリアしてログイン画面に戻る
+         * 作成理由: ユーザーがログアウトできるようにするため
+         */
+        function logout() {
+            if (confirm('ログアウトしますか？')) {
+                sessionStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }
+        
+        /**
+         * HTMLエスケープ
+         * 機能: XSS攻撃を防ぐためHTMLをエスケープ
+         * 作成理由: セキュリティ対策のため
+         */
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        /**
+         * 日付をフォーマット
+         * 機能: ISO日付を読みやすい形式に変換
+         * 作成理由: ユーザーに分かりやすい日時表示を提供するため
+         */
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('ja-JP', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+    </script>
+</body>
+</html>

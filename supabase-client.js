@@ -579,3 +579,106 @@ async function deleteAllNotes(userId) {
         };
     }
 }
+
+/**
+ * ユーザーアカウントと関連データをすべて削除
+ * 機能: ユーザー、メモ、アクセスログをすべて削除
+ * 作成理由: ユーザーがアカウントを完全に削除できるようにするため
+ * 
+ * @param {string} userId - ユーザーID
+ * @returns {Object} 結果オブジェクト { success, message }
+ */
+async function deleteUserAccount(userId) {
+    try {
+        // ユーザーを削除（CASCADE設定により、メモとログも自動的に削除される）
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/users?id=eq.${userId}`,
+            {
+                method: 'DELETE',
+                headers: headers
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error('アカウント削除に失敗しました');
+        }
+
+        return {
+            success: true,
+            message: 'アカウントとすべてのデータを削除しました'
+        };
+    } catch (error) {
+        console.error('アカウント削除エラー:', error);
+        return {
+            success: false,
+            message: error.message
+        };
+    }
+}
+
+/**
+ * 古いアクセスログを削除（14日より前のログ）
+ * 機能: 指定したユーザーの14日以前のアクセスログを削除
+ * 作成理由: ログデータの肥大化を防ぐため
+ * 
+ * @param {string} userId - ユーザーID
+ * @returns {Object} 結果オブジェクト { success, message, deletedCount }
+ */
+async function deleteOldLogs(userId) {
+    try {
+        // 14日前の日時を計算
+        const fourteenDaysAgo = new Date();
+        fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+        const fourteenDaysAgoISO = fourteenDaysAgo.toISOString();
+        
+        // まず、削除するログの数を取得
+        const countResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/access_logs?user_id=eq.${userId}&created_at=lt.${fourteenDaysAgoISO}&select=id`,
+            {
+                method: 'GET',
+                headers: headers
+            }
+        );
+
+        if (!countResponse.ok) {
+            throw new Error('ログの取得に失敗しました');
+        }
+
+        const logs = await countResponse.json();
+        const deletedCount = logs.length;
+
+        if (deletedCount === 0) {
+            return {
+                success: true,
+                message: '削除する古いログがありません',
+                deletedCount: 0
+            };
+        }
+
+        // 14日より前のログを削除
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/access_logs?user_id=eq.${userId}&created_at=lt.${fourteenDaysAgoISO}`,
+            {
+                method: 'DELETE',
+                headers: headers
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error('ログの削除に失敗しました');
+        }
+
+        return {
+            success: true,
+            message: `${deletedCount}件の古いログを削除しました`,
+            deletedCount: deletedCount
+        };
+    } catch (error) {
+        console.error('古いログ削除エラー:', error);
+        return {
+            success: false,
+            message: error.message,
+            deletedCount: 0
+        };
+    }
+}
