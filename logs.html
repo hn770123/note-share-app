@@ -11,9 +11,15 @@
         <!-- ヘッダー -->
         <header class="app-header">
             <h1>📊 アクセスログ</h1>
-            <div class="header-actions">
-                <button id="backBtn" class="btn btn-secondary">← メモ管理に戻る</button>
-                <button id="logoutBtn" class="btn btn-secondary">ログアウト</button>
+            <div class="header-info">
+                <div class="user-info">
+                    <span class="user-info-label">ログインID (パスキー):</span>
+                    <span id="displayPasscode" class="user-passcode"></span>
+                </div>
+                <div class="header-actions">
+                    <button id="backBtn" class="btn btn-secondary">← メモ管理に戻る</button>
+                    <button id="logoutBtn" class="btn btn-secondary">ログアウト</button>
+                </div>
             </div>
         </header>
 
@@ -53,6 +59,12 @@
             if (!userId) {
                 window.location.href = 'index.html';
                 return;
+            }
+            
+            // パスコードを表示
+            const passcode = sessionStorage.getItem('passcode');
+            if (passcode) {
+                document.getElementById('displayPasscode').textContent = passcode;
             }
             
             // ログを読み込み

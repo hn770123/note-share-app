@@ -274,6 +274,36 @@ body {
     font-size: 1.5rem;
 }
 
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-md);
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    border: 2px solid var(--border-color);
+}
+
+.user-info-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.user-passcode {
+    color: var(--primary-color);
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+
 .header-actions {
     display: flex;
     gap: var(--spacing-sm);
@@ -642,6 +672,17 @@ body {
     .app-header {
         flex-direction: column;
         gap: var(--spacing-sm);
+    }
+    
+    .header-info {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        gap: var(--spacing-sm);
+    }
+    
+    .user-info {
+        justify-content: center;
     }
     
     .header-actions {

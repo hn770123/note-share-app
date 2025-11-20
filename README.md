@@ -8,6 +8,7 @@ Supabaseをバックエンドとして使用し、HTML/JavaScriptで構築され
 - **12桁パスコード認証**: セキュアなログインシステム
 - **ランダムパスキー生成**: ワンクリックで安全なパスコードを生成
 - **新規パスキー作成制限**: 1日3つまでの作成制限（既存パスキーのログインは無制限）
+- **ログインID表示**: ヘッダーにログインID（パスキー）を常時表示
 - **メモの作成・編集**: Markdown形式に対応
 - **複数メモ管理**: 名前付きで複数のメモを作成可能
 - **アカウント完全削除**: ユーザーアカウントと全データ（メモ、ログ）を一括削除
@@ -25,7 +26,15 @@ Supabaseをバックエンドとして使用し、HTML/JavaScriptで構築され
 3. プロジェクトのURL（SUPABASE_URL）とAnon Keyをコピー
 
 ### 2. データベーススキーマの設定
-Supabase SQLエディタで以下を実行:
+
+#### 新規セットアップの場合
+Supabase SQLエディタで `recreate_tables.sql` の内容を実行してください。
+
+#### 既存テーブルを修正する場合
+既存データを保持したまま修正する場合は、Supabase SQLエディタで `alter_tables.sql` の内容を実行してください。
+
+<details>
+<summary>手動でSQLを実行する場合はこちらをクリック</summary>
 
 ```sql
 -- ユーザーテーブル
@@ -46,9 +55,10 @@ CREATE TABLE notes (
 );
 
 -- アクセスログテーブル
+-- 注意: note_idはNULLを許可（ログイン・ログアウトなど、メモに関連しないアクションのため）
 CREATE TABLE access_logs (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
   note_id UUID REFERENCES notes(id) ON DELETE CASCADE,
   action TEXT NOT NULL,
   ip_address TEXT,
@@ -58,6 +68,12 @@ CREATE TABLE access_logs (
   device TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- インデックスの作成（パフォーマンス向上のため）
+CREATE INDEX idx_notes_user_id ON notes(user_id);
+CREATE INDEX idx_notes_updated_at ON notes(updated_at DESC);
+CREATE INDEX idx_access_logs_user_id ON access_logs(user_id);
+CREATE INDEX idx_access_logs_created_at ON access_logs(created_at DESC);
 
 -- Row Level Security (RLS)を有効化
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
@@ -74,6 +90,7 @@ CREATE POLICY "Users can manage their notes" ON notes
 CREATE POLICY "Users can view access logs" ON access_logs
   FOR ALL USING (true);
 ```
+</details>
 
 ### 3. 設定ファイルの編集
 `supabase-client.js`ファイルで以下の値を設定:
