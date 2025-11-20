@@ -58,12 +58,17 @@ CREATE TABLE notes (
 );
 
 -- アクセスログテーブル
--- 機能: ユーザーの操作履歴を記録
+-- 機能: ユーザーの操作履歴を記録（接続元情報を含む）
 CREATE TABLE access_logs (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   note_id UUID REFERENCES notes(id) ON DELETE CASCADE,
   action TEXT NOT NULL,
+  ip_address TEXT,
+  user_agent TEXT,
+  browser TEXT,
+  os TEXT,
+  device TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -72,6 +77,7 @@ CREATE INDEX idx_notes_user_id ON notes(user_id);
 CREATE INDEX idx_notes_updated_at ON notes(updated_at DESC);
 CREATE INDEX idx_access_logs_user_id ON access_logs(user_id);
 CREATE INDEX idx_access_logs_created_at ON access_logs(created_at DESC);
+CREATE INDEX idx_users_created_at ON users(created_at DESC);
 
 -- Row Level Security (RLS)を有効化
 -- セキュリティ: データへのアクセスを制限

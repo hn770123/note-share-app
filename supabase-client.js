@@ -21,6 +21,42 @@ const headers = {
 };
 
 /**
+ * 1日の新規ユーザー作成数をチェック
+ * 機能: 24時間以内に作成されたユーザー数をカウント
+ * 作成理由: 1日3つまでの制限を実装するため
+ * 
+ * @returns {number} 本日作成されたユーザー数
+ */
+async function checkDailyUserCreationLimit() {
+    try {
+        // 24時間前の日時を計算
+        const oneDayAgo = new Date();
+        oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+        const oneDayAgoISO = oneDayAgo.toISOString();
+        
+        // 24時間以内に作成されたユーザーを検索
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/users?created_at=gte.${oneDayAgoISO}&select=id`,
+            {
+                method: 'GET',
+                headers: headers
+            }
+        );
+
+        if (!response.ok) {
+            console.error('ユーザー数チェックに失敗しました');
+            return 0;
+        }
+
+        const users = await response.json();
+        return users.length;
+    } catch (error) {
+        console.error('制限チェックエラー:', error);
+        return 0;
+    }
+}
+
+/**
  * ログイン処理
  * 機能: パスコードでユーザーを認証または新規作成
  * 作成理由: ユーザーがパスコードでシステムにアクセスできるようにするため
@@ -53,6 +89,15 @@ async function login(passcode) {
                 message: '既存ユーザーでログインしました'
             };
         } else {
+            // 新規ユーザー作成の制限をチェック
+            const dailyCount = await checkDailyUserCreationLimit();
+            if (dailyCount >= 3) {
+                return {
+                    success: false,
+                    message: '1日の新規パスキー作成上限（3つ）に達しました。明日以降に再度お試しください。'
+                };
+            }
+
             // 新規ユーザーを作成
             const createResponse = await fetch(
                 `${SUPABASE_URL}/rest/v1/users`,
@@ -216,8 +261,95 @@ async function deleteNoteById(noteId) {
 }
 
 /**
+ * ブラウザとデバイス情報を取得
+ * 機能: ユーザーエージェントからブラウザ、OS、デバイス情報を抽出
+ * 作成理由: アクセスログに詳細な接続元情報を記録するため
+ * 
+ * @returns {Object} ブラウザとデバイス情報
+ */
+function getBrowserInfo() {
+    const ua = navigator.userAgent;
+    let browser = 'Unknown';
+    let os = 'Unknown';
+    let device = 'Desktop';
+
+    // ブラウザ検出
+    if (ua.indexOf('Firefox') > -1) {
+        browser = 'Firefox';
+    } else if (ua.indexOf('Chrome') > -1 && ua.indexOf('Edg') === -1) {
+        browser = 'Chrome';
+    } else if (ua.indexOf('Safari') > -1 && ua.indexOf('Chrome') === -1) {
+        browser = 'Safari';
+    } else if (ua.indexOf('Edg') > -1) {
+        browser = 'Edge';
+    } else if (ua.indexOf('Opera') > -1 || ua.indexOf('OPR') > -1) {
+        browser = 'Opera';
+    }
+
+    // OS検出
+    if (ua.indexOf('Windows') > -1) {
+        os = 'Windows';
+    } else if (ua.indexOf('Mac') > -1) {
+        os = 'macOS';
+    } else if (ua.indexOf('Linux') > -1) {
+        os = 'Linux';
+    } else if (ua.indexOf('Android') > -1) {
+        os = 'Android';
+        device = 'Mobile';
+    } else if (ua.indexOf('iOS') > -1 || ua.indexOf('iPhone') > -1 || ua.indexOf('iPad') > -1) {
+        os = 'iOS';
+        device = ua.indexOf('iPad') > -1 ? 'Tablet' : 'Mobile';
+    }
+
+    // タブレット検出（Androidの場合）
+    if (os === 'Android' && ua.indexOf('Mobile') === -1) {
+        device = 'Tablet';
+    }
+
+    return {
+        browser: browser,
+        os: os,
+        device: device,
+        userAgent: ua
+    };
+}
+
+/**
+ * IPアドレスを取得（サードパーティAPIを使用）
+ * 機能: クライアントのIPアドレスを取得
+ * 作成理由: アクセスログに接続元IPを記録するため
+ * 
+ * @returns {string} IPアドレス（取得失敗時は'Unknown'）
+ */
+async function getIpAddress() {
+    try {
+        // 複数のAPIを試す（フォールバック機能）
+        const apis = [
+            'https://api.ipify.org?format=json',
+            'https://api64.ipify.org?format=json'
+        ];
+
+        for (const api of apis) {
+            try {
+                const response = await fetch(api);
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.ip || 'Unknown';
+                }
+            } catch (e) {
+                continue;
+            }
+        }
+        return 'Unknown';
+    } catch (error) {
+        console.error('IP取得エラー:', error);
+        return 'Unknown';
+    }
+}
+
+/**
  * アクセスログを記録
- * 機能: ユーザーの行動を記録
+ * 機能: ユーザーの行動を記録（接続元情報を含む）
  * 作成理由: セキュリティとアクティビティ追跡のため
  * 
  * @param {string} userId - ユーザーID
@@ -227,6 +359,17 @@ async function deleteNoteById(noteId) {
  */
 async function logAccess(userId, noteId, action) {
     try {
+        // ブラウザ情報を取得
+        const browserInfo = getBrowserInfo();
+        
+        // IPアドレスを取得（非同期で、失敗しても続行）
+        let ipAddress = 'Unknown';
+        try {
+            ipAddress = await getIpAddress();
+        } catch (e) {
+            console.warn('IP取得に失敗しました', e);
+        }
+
         const response = await fetch(
             `${SUPABASE_URL}/rest/v1/access_logs`,
             {
@@ -235,7 +378,12 @@ async function logAccess(userId, noteId, action) {
                 body: JSON.stringify({
                     user_id: userId,
                     note_id: noteId,
-                    action: action
+                    action: action,
+                    ip_address: ipAddress,
+                    user_agent: browserInfo.userAgent,
+                    browser: browserInfo.browser,
+                    os: browserInfo.os,
+                    device: browserInfo.device
                 })
             }
         );
@@ -366,6 +514,68 @@ async function updatePasscode(userId, newPasscode) {
         return {
             success: false,
             message: error.message
+        };
+    }
+}
+
+/**
+ * ユーザーの全メモを削除
+ * 機能: ユーザーに紐づくすべてのメモを削除
+ * 作成理由: ユーザーがすべてのメモを一括削除できるようにするため
+ * 
+ * @param {string} userId - ユーザーID
+ * @returns {Object} 結果オブジェクト { success, message, deletedCount }
+ */
+async function deleteAllNotes(userId) {
+    try {
+        // まず、削除するメモの数を取得
+        const countResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/notes?user_id=eq.${userId}&select=id`,
+            {
+                method: 'GET',
+                headers: headers
+            }
+        );
+
+        if (!countResponse.ok) {
+            throw new Error('メモの取得に失敗しました');
+        }
+
+        const notes = await countResponse.json();
+        const deletedCount = notes.length;
+
+        if (deletedCount === 0) {
+            return {
+                success: true,
+                message: '削除するメモがありません',
+                deletedCount: 0
+            };
+        }
+
+        // すべてのメモを削除
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/notes?user_id=eq.${userId}`,
+            {
+                method: 'DELETE',
+                headers: headers
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error('メモの削除に失敗しました');
+        }
+
+        return {
+            success: true,
+            message: `${deletedCount}件のメモを削除しました`,
+            deletedCount: deletedCount
+        };
+    } catch (error) {
+        console.error('全メモ削除エラー:', error);
+        return {
+            success: false,
+            message: error.message,
+            deletedCount: 0
         };
     }
 }
