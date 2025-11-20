@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>メモ共有アプリ - ログイン</title>
     <link rel="stylesheet" href="style.css">
+    
+    <!-- PWA対応 -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4a90e2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="memo.">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 </head>
 <body>
     <div class="container">
@@ -35,8 +45,8 @@
                                 id="passcode" 
                                 name="passcode" 
                                 maxlength="12" 
-                                pattern="[0-9]{12}" 
-                                placeholder="例: 123456789012"
+                                pattern="[0-9A-Z]{12}" 
+                                placeholder="例: 123ABC789XYZ"
                                 required
                             >
                             <button type="button" id="generatePasscodeBtn" class="btn btn-secondary">🎲 ランダム生成</button>
@@ -55,13 +65,14 @@
     <script>
         /**
          * ランダムなパスコードを生成
-         * 機能: 12桁のランダムな数字を生成
+         * 機能: 12桁のランダムな英数字(0-9, A-Z)を生成
          * 作成理由: ユーザーがパスコードを簡単に作成できるようにするため
          */
         function generateRandomPasscode() {
+            const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             let passcode = '';
             for (let i = 0; i < 12; i++) {
-                passcode += Math.floor(Math.random() * 10);
+                passcode += characters.charAt(Math.floor(Math.random() * characters.length));
             }
             return passcode;
         }
@@ -91,8 +102,8 @@
             const messageDiv = document.getElementById('message');
             
             // バリデーション
-            if (passcode.length !== 12 || !/^\d{12}$/.test(passcode)) {
-                messageDiv.textContent = 'パスコードは12桁の数字で入力してください';
+            if (passcode.length !== 12 || !/^[0-9A-Z]{12}$/i.test(passcode)) {
+                messageDiv.textContent = 'パスコードは12桁の英数字(0-9, A-Z)で入力してください';
                 messageDiv.className = 'message error';
                 return;
             }
@@ -126,6 +137,23 @@
                 messageDiv.className = 'message error';
             }
         });
+
+        /**
+         * Service Workerの登録
+         * 機能: PWA機能を有効化
+         * 作成理由: オフライン対応とアプリのインストール機能を提供するため
+         */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered:', registration);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>

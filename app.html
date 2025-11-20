@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>メモ共有アプリ - メモ管理</title>
     <link rel="stylesheet" href="style.css">
+    
+    <!-- PWA対応 -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4a90e2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="memo.">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    
     <!-- Markdown to HTML変換ライブラリ -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
@@ -21,6 +32,7 @@
                 <div class="header-actions">
                     <button id="viewLogsBtn" class="btn btn-secondary">📊 ログ確認</button>
                     <button id="changePasscodeBtn" class="btn btn-secondary">パスコード変更</button>
+                    <button id="deleteAccountBtn" class="btn btn-danger">🗑️ アカウント削除</button>
                     <button id="logoutBtn" class="btn btn-secondary">ログアウト</button>
                 </div>
             </div>
@@ -33,7 +45,6 @@
                 <div class="sidebar-header">
                     <h2>メモ一覧</h2>
                     <button id="newNoteBtn" class="btn btn-primary">+ 新規作成</button>
-                    <button id="deleteAccountBtn" class="btn btn-danger" style="margin-top: 8px;">🗑️ アカウント削除</button>
                 </div>
                 
                 <div class="note-list" id="noteList">
@@ -94,8 +105,8 @@
                         type="text" 
                         id="newPasscode" 
                         maxlength="12" 
-                        pattern="[0-9]{12}" 
-                        placeholder="例: 123456789012"
+                        pattern="[0-9A-Z]{12}" 
+                        placeholder="例: 123ABC789XYZ"
                         required
                     >
                 </div>
@@ -105,7 +116,7 @@
                         type="text" 
                         id="confirmPasscode" 
                         maxlength="12" 
-                        pattern="[0-9]{12}" 
+                        pattern="[0-9A-Z]{12}" 
                         placeholder="もう一度入力してください"
                         required
                     >
@@ -469,8 +480,8 @@
             const messageDiv = document.getElementById('passcodeMessage');
             
             // バリデーション
-            if (newPasscode.length !== 12 || !/^\d{12}$/.test(newPasscode)) {
-                messageDiv.textContent = 'パスコードは12桁の数字で入力してください';
+            if (newPasscode.length !== 12 || !/^[0-9A-Z]{12}$/i.test(newPasscode)) {
+                messageDiv.textContent = 'パスコードは12桁の英数字(0-9, A-Z)で入力してください';
                 messageDiv.className = 'message error';
                 return;
             }

@@ -249,8 +249,8 @@ const validator = {
         if (passcode.length !== 12) {
             return { isValid: false, message: 'パスコードは12桁で入力してください' };
         }
-        if (!/^\d{12}$/.test(passcode)) {
-            return { isValid: false, message: 'パスコードは数字のみで入力してください' };
+        if (!/^[0-9A-Z]{12}$/i.test(passcode)) {
+            return { isValid: false, message: 'パスコードは英数字(0-9, A-Z)のみで入力してください' };
         }
         return { isValid: true, message: '' };
     },
