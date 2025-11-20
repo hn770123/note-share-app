@@ -4,9 +4,9 @@
  * 作成理由: バックエンドとの連携を一元化するため
  */
 
-// Supabase設定（実際の値に置き換えてください）
-const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL'; // 例: 'https://xxxxx.supabase.co'
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // Supabaseプロジェクトの Anon Key
+// Supabase設定（実際の値に置き換えた
+const SUPABASE_URL = 'https://fszwbvhvfjarbtcacwvb.supabase.co'; // 例: 'https://xxxxx.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzendidmh2ZmphcmJ0Y2Fjd3ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NjI0NTEsImV4cCI6MjA3ODMzODQ1MX0.fkdJcgzH8ur3SQ2Efw2TJSlha8KAjQ5GiYuigRz-7wk'; // Supabaseプロジェクトの Anon Key
 
 /**
  * Supabase APIリクエストヘッダー
