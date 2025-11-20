@@ -322,17 +322,23 @@ body {
     border-radius: var(--border-radius);
     margin-bottom: var(--spacing-sm);
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
     border: 2px solid transparent;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .note-item:hover {
     background-color: var(--bg-secondary);
+    transform: translateX(4px);
 }
 
 .note-item.active {
     background-color: #e3f2fd;
     border-color: var(--primary-color);
+    box-shadow: var(--shadow-sm);
 }
 
 .note-item-title {
@@ -353,28 +359,46 @@ body {
 }
 
 /* ===============================================
-   アクセスログ
+   アクセスログページ
    =============================================== */
-.access-log-section {
-    border-top: 2px solid var(--border-color);
+.logs-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+.logs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.logs-header h1 {
+    color: var(--primary-color);
+    font-size: 1.75rem;
+}
+
+.logs-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.logs-list {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
     padding: var(--spacing-md);
 }
 
-.access-log-section h3 {
-    margin-bottom: var(--spacing-sm);
-    font-size: 1rem;
-    color: var(--text-primary);
-}
-
-.access-log {
-    max-height: 250px;
-    overflow-y: auto;
-}
-
 .log-item {
-    padding: var(--spacing-sm);
-    border-bottom: 1px solid var(--border-color);
-    font-size: 0.875rem;
+    padding: var(--spacing-md);
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: var(--spacing-md);
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
 }
 
 .log-item:last-child {
@@ -382,37 +406,53 @@ body {
 }
 
 .log-header {
-    margin-bottom: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    align-items: center;
 }
 
 .log-action {
     display: inline-block;
-    padding: 2px 8px;
+    padding: 4px 12px;
     background-color: var(--primary-color);
     color: var(--text-light);
     border-radius: 4px;
-    font-size: 0.75rem;
-    margin-right: var(--spacing-xs);
+    font-size: 0.875rem;
+    font-weight: 600;
 }
 
 .log-note {
     color: var(--text-primary);
-    margin-right: var(--spacing-xs);
+    font-weight: 500;
 }
 
 .log-date {
     color: var(--text-secondary);
-    font-size: 0.75rem;
+    font-size: 0.875rem;
 }
 
-.log-connection-info {
-    margin-top: var(--spacing-xs);
-    padding: var(--spacing-xs);
-    background-color: var(--bg-secondary);
+.log-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background-color: var(--bg-primary);
     border-radius: 4px;
-    font-size: 0.75rem;
+}
+
+.log-detail-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.875rem;
     color: var(--text-secondary);
-    line-height: 1.4;
+}
+
+.log-detail-item strong {
+    color: var(--text-primary);
 }
 
 /* ===============================================
@@ -607,6 +647,7 @@ body {
     .header-actions {
         width: 100%;
         justify-content: space-between;
+        flex-wrap: wrap;
     }
     
     .main-content {
@@ -620,6 +661,17 @@ body {
         max-height: 40vh;
     }
     
+    /* モバイルでのメモ選択エリア拡張 */
+    .note-item {
+        min-height: 70px;
+        padding: var(--spacing-lg);
+        touch-action: manipulation;
+    }
+    
+    .note-item-title {
+        font-size: 1.1rem;
+    }
+    
     .note-header {
         flex-direction: column;
         align-items: stretch;
@@ -627,5 +679,18 @@ body {
     
     .note-actions {
         justify-content: space-between;
+    }
+    
+    .logs-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .logs-actions {
+        flex-direction: column;
+    }
+    
+    .log-details {
+        grid-template-columns: 1fr;
     }
 }
