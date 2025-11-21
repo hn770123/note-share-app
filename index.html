@@ -119,9 +119,9 @@
                     messageDiv.textContent = 'ログイン成功！';
                     messageDiv.className = 'message success';
                     
-                    // ユーザーIDをセッションストレージに保存
-                    sessionStorage.setItem('userId', result.userId);
-                    sessionStorage.setItem('passcode', passcode);
+                    // ユーザーIDをローカルストレージに保存（自動ログイン対応）
+                    localStorage.setItem('userId', result.userId);
+                    localStorage.setItem('passcode', passcode);
                     
                     // メモ一覧画面に遷移
                     setTimeout(() => {

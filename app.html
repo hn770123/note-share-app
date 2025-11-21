@@ -147,15 +147,15 @@
         
         // ページ読み込み時の初期化
         document.addEventListener('DOMContentLoaded', async () => {
-            // ログインチェック
-            const userId = sessionStorage.getItem('userId');
+            // ログインチェック（localStorageから取得して自動ログイン対応）
+            const userId = localStorage.getItem('userId');
             if (!userId) {
                 window.location.href = 'index.html';
                 return;
             }
             
             // パスコードを表示
-            const passcode = sessionStorage.getItem('passcode');
+            const passcode = localStorage.getItem('passcode');
             if (passcode) {
                 document.getElementById('displayPasscode').textContent = passcode;
             }
@@ -192,7 +192,7 @@
          * 作成理由: ユーザーのメモ一覧を表示するため
          */
         async function loadNotes() {
-            const userId = sessionStorage.getItem('userId');
+            const userId = localStorage.getItem('userId');
             const notes = await getNotes(userId);
             
             const noteList = document.getElementById('noteList');
@@ -252,7 +252,7 @@
             await loadNotes();
             
             // アクセスログを記録
-            const userId = sessionStorage.getItem('userId');
+            const userId = localStorage.getItem('userId');
             await logAccess(userId, note.id, '閲覧');
         }
         
@@ -269,7 +269,7 @@
                 exitEditMode();
             }
             
-            const userId = sessionStorage.getItem('userId');
+            const userId = localStorage.getItem('userId');
             const title = `新しいメモ ${new Date().toLocaleString('ja-JP')}`;
             
             // 新規メモを作成
@@ -351,7 +351,7 @@
                 await loadNotes();
                 
                 // アクセスログを記録
-                const userId = sessionStorage.getItem('userId');
+                const userId = localStorage.getItem('userId');
                 await logAccess(userId, currentNoteId, '編集');
             }
         }
@@ -396,7 +396,7 @@
          * 作成理由: ユーザーがアカウントを完全に削除できるようにするため
          */
         async function deleteAccountConfirm() {
-            const userId = sessionStorage.getItem('userId');
+            const userId = localStorage.getItem('userId');
             
             // 三重確認
             if (!confirm('⚠️ 重要な警告\n\nアカウントを削除しますか？\n\n以下のすべてのデータが完全に削除されます：\n・すべてのメモ\n・すべてのアクセスログ\n・アカウント情報\n\nこの操作は取り消せません。')) {
@@ -417,8 +417,8 @@
             if (result.success) {
                 alert(result.message + '\n\nログアウトします。');
                 
-                // セッションをクリアしてログイン画面へ
-                sessionStorage.clear();
+                // ローカルストレージをクリアしてログイン画面へ
+                localStorage.clear();
                 window.location.href = 'index.html';
             } else {
                 alert('エラー: ' + result.message);
@@ -436,12 +436,12 @@
         
         /**
          * ログアウト
-         * 機能: セッション情報をクリアしてログイン画面に戻る
+         * 機能: ローカルストレージ情報をクリアしてログイン画面に戻る
          * 作成理由: ユーザーがログアウトできるようにするため
          */
         function logout() {
             if (confirm('ログアウトしますか？')) {
-                sessionStorage.clear();
+                localStorage.clear();
                 window.location.href = 'index.html';
             }
         }
@@ -493,15 +493,15 @@
             }
             
             // パスコード変更処理
-            const userId = sessionStorage.getItem('userId');
+            const userId = localStorage.getItem('userId');
             const result = await updatePasscode(userId, newPasscode);
             
             if (result.success) {
                 messageDiv.textContent = 'パスコードを変更しました';
                 messageDiv.className = 'message success';
                 
-                // セッションストレージを更新
-                sessionStorage.setItem('passcode', newPasscode);
+                // ローカルストレージを更新
+                localStorage.setItem('passcode', newPasscode);
                 
                 setTimeout(() => {
                     hideChangePasscodeModal();
