@@ -134,6 +134,9 @@ const localStorageManager = {
 
     /**
      * すべてのデータをクリア
+     * 注意: この関数は同じドメイン上のすべてのlocalStorageデータを削除します
+     * 認証情報のみを削除する場合は、localStorage.removeItem('userId')と
+     * localStorage.removeItem('passcode')を使用してください
      */
     clear: function() {
         try {
