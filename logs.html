@@ -65,14 +65,14 @@
         // ページ読み込み時の初期化
         document.addEventListener('DOMContentLoaded', async () => {
             // ログインチェック
-            const userId = sessionStorage.getItem('userId');
+            const userId = localStorage.getItem('userId');
             if (!userId) {
                 window.location.href = 'index.html';
                 return;
             }
             
             // パスコードを表示
-            const passcode = sessionStorage.getItem('passcode');
+            const passcode = localStorage.getItem('passcode');
             if (passcode) {
                 document.getElementById('displayPasscode').textContent = passcode;
             }
@@ -104,7 +104,7 @@
          * 作成理由: ユーザーの活動履歴を詳細に表示するため
          */
         async function loadAllLogs() {
-            const userId = sessionStorage.getItem('userId');
+            const userId = localStorage.getItem('userId');
             const logs = await getAccessLog(userId);
             
             const logsList = document.getElementById('logsList');
@@ -163,7 +163,7 @@
                 return;
             }
             
-            const userId = sessionStorage.getItem('userId');
+            const userId = localStorage.getItem('userId');
             const result = await deleteOldLogs(userId);
             
             if (result.success) {
@@ -176,12 +176,12 @@
         
         /**
          * ログアウト
-         * 機能: セッション情報をクリアしてログイン画面に戻る
+         * 機能: ローカルストレージをクリアしてログイン画面に戻る
          * 作成理由: ユーザーがログアウトできるようにするため
          */
         function logout() {
             if (confirm('ログアウトしますか？')) {
-                sessionStorage.clear();
+                localStorage.clear();
                 window.location.href = 'index.html';
             }
         }
