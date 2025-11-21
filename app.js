@@ -12,18 +12,18 @@
  * @returns {boolean} ログインしているかどうか
  */
 function isLoggedIn() {
-    return sessionStorage.getItem('userId') !== null;
+    return localStorage.getItem('userId') !== null;
 }
 
 /**
  * ユーザーIDを取得
- * 機能: セッションストレージからユーザーIDを取得
+ * 機能: ローカルストレージからユーザーIDを取得
  * 作成理由: 各API呼び出しでユーザーIDが必要なため
  * 
  * @returns {string|null} ユーザーID
  */
 function getCurrentUserId() {
-    return sessionStorage.getItem('userId');
+    return localStorage.getItem('userId');
 }
 
 /**
@@ -134,6 +134,9 @@ const localStorageManager = {
 
     /**
      * すべてのデータをクリア
+     * 注意: この関数は同じドメイン上のすべてのlocalStorageデータを削除します
+     * 認証情報のみを削除する場合は、localStorage.removeItem('userId')と
+     * localStorage.removeItem('passcode')を使用してください
      */
     clear: function() {
         try {
