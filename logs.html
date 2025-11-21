@@ -176,12 +176,14 @@
         
         /**
          * ログアウト
-         * 機能: ローカルストレージをクリアしてログイン画面に戻る
+         * 機能: ログイン情報をローカルストレージから削除してログイン画面に戻る
          * 作成理由: ユーザーがログアウトできるようにするため
          */
         function logout() {
             if (confirm('ログアウトしますか？')) {
-                localStorage.clear();
+                // ログイン情報のみを削除
+                localStorage.removeItem('userId');
+                localStorage.removeItem('passcode');
                 window.location.href = 'index.html';
             }
         }

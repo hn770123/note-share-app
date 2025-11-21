@@ -70,7 +70,9 @@
          */
         (function checkAutoLogin() {
             const userId = localStorage.getItem('userId');
-            if (userId) {
+            const passcode = localStorage.getItem('passcode');
+            // userIdとpasscodeの両方が存在する場合のみ自動ログイン
+            if (userId && passcode) {
                 // ログイン済みの場合はメモ管理画面へリダイレクト
                 window.location.href = 'app.html';
             }
