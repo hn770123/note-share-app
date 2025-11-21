@@ -559,7 +559,7 @@ body {
 .note-content {
     flex: 1;
     padding: var(--spacing-lg);
-    overflow: visible; /* 子要素が親要素より大きくなることを許可 */
+    overflow: auto; /* 子要素が大きくなった場合にスクロール可能に */
     display: flex;
     flex-direction: column;
     min-height: 450px; /* 親要素に最小高さを確保 */
@@ -630,7 +630,6 @@ body {
 .note-textarea {
     width: 100%;
     min-height: 40vh; /* vh単位で最小高さを指定 */
-    height: auto; /* 高さを自動調整可能に */
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
     padding: var(--spacing-md);
@@ -747,13 +746,11 @@ body {
     .note-textarea {
         min-height: 50vh; /* モバイルでより高さを確保（vh単位） */
         font-size: 16px; /* iOS Safariでのズーム防止 */
-        resize: vertical; /* モバイルでもユーザーが縦方向にリサイズ可能 */
     }
     
     .note-content {
         /* モバイルでパディングを減らして入力エリアを広げる */
         padding: var(--spacing-md);
-        overflow: visible; /* 子要素が親要素より大きくなることを許可 */
     }
     
     .logs-header {
