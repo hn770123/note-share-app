@@ -13,6 +13,11 @@
     box-sizing: border-box;
 }
 
+html {
+    height: 100%;
+    overflow-y: auto;
+}
+
 :root {
     /* カラーパレット */
     --primary-color: #4a90e2;
@@ -53,13 +58,15 @@ body {
     background-color: var(--bg-secondary);
     color: var(--text-primary);
     line-height: 1.6;
+    overflow-y: auto;
+    min-height: 100%;
 }
 
 /* ===============================================
    ログイン画面
    =============================================== */
 .container {
-    min-height: 100vh;
+    min-height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -254,9 +261,10 @@ body {
    アプリ画面
    =============================================== */
 .app-container {
-    min-height: 100vh;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 }
 
 .app-header {
@@ -648,6 +656,8 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    padding: var(--spacing-lg) 0;
+    overflow-y: auto;
 }
 
 .modal-content {
@@ -657,6 +667,9 @@ body {
     max-width: 500px;
     width: 90%;
     box-shadow: var(--shadow-lg);
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: var(--spacing-lg) auto;
 }
 
 .modal-content h2 {
