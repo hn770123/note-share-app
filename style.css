@@ -656,6 +656,7 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    padding: var(--spacing-lg) 0;
     overflow-y: auto;
 }
 
@@ -666,8 +667,8 @@ body {
     max-width: 500px;
     width: 90%;
     box-shadow: var(--shadow-lg);
-    height: auto;
-    min-height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
     margin: var(--spacing-lg) auto;
 }
 
