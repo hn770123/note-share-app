@@ -1,24 +1,25 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>メモ共有アプリ - メモ管理</title>
     <link rel="stylesheet" href="style.css">
-    
-    <!-- PWA対応 -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4a90e2">
+
+    <!-- iOS向けメタタグ -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="memo.">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-    
+    <meta name="theme-color" content="#4a90e2">
+
     <!-- Markdown to HTML変換ライブラリ -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
+
 <body>
     <div class="app-container">
         <!-- ヘッダー -->
@@ -46,7 +47,7 @@
                     <h2>メモ一覧</h2>
                     <button id="newNoteBtn" class="btn btn-primary">+ 新規作成</button>
                 </div>
-                
+
                 <div class="note-list" id="noteList">
                     <!-- メモ一覧がここに表示される -->
                 </div>
@@ -60,13 +61,7 @@
 
                 <div id="noteEditorContent" class="note-editor-content" style="display: none;">
                     <div class="note-header">
-                        <input 
-                            type="text" 
-                            id="noteTitle" 
-                            placeholder="メモのタイトル" 
-                            class="note-title-input"
-                            readonly
-                        >
+                        <input type="text" id="noteTitle" placeholder="メモのタイトル" class="note-title-input" readonly>
                         <div class="note-actions">
                             <button id="editBtn" class="btn btn-primary">編集</button>
                             <button id="saveBtn" class="btn btn-success" style="display: none;">保存</button>
@@ -80,14 +75,10 @@
                         <div id="noteView" class="note-view">
                             <!-- Markdownレンダリング結果がここに表示される -->
                         </div>
-                        
+
                         <!-- 編集モード -->
-                        <textarea 
-                            id="noteContent" 
-                            class="note-textarea" 
-                            placeholder="ここにメモを入力してください（Markdown形式対応）"
-                            style="display: none;"
-                        ></textarea>
+                        <textarea id="noteContent" class="note-textarea" placeholder="ここにメモを入力してください（Markdown形式対応）"
+                            style="display: none;"></textarea>
                     </div>
                 </div>
             </main>
@@ -101,25 +92,13 @@
             <form id="changePasscodeForm">
                 <div class="form-group">
                     <label for="newPasscode">新しいパスコード (12桁)</label>
-                    <input 
-                        type="text" 
-                        id="newPasscode" 
-                        maxlength="12" 
-                        pattern="[0-9A-Z]{12}" 
-                        placeholder="例: 123ABC789XYZ"
-                        required
-                    >
+                    <input type="text" id="newPasscode" maxlength="12" pattern="[0-9A-Z]{12}"
+                        placeholder="例: 123ABC789XYZ" required>
                 </div>
                 <div class="form-group">
                     <label for="confirmPasscode">パスコード確認</label>
-                    <input 
-                        type="text" 
-                        id="confirmPasscode" 
-                        maxlength="12" 
-                        pattern="[0-9A-Z]{12}" 
-                        placeholder="もう一度入力してください"
-                        required
-                    >
+                    <input type="text" id="confirmPasscode" maxlength="12" pattern="[0-9A-Z]{12}"
+                        placeholder="もう一度入力してください" required>
                 </div>
                 <div id="passcodeMessage" class="message"></div>
                 <div class="modal-actions">
@@ -138,13 +117,13 @@
          * 機能: メモの表示、編集、保存、削除などの管理
          * 作成理由: ユーザーがメモを簡単に管理できるようにするため
          */
-        
+
         // グローバル変数
         let currentNoteId = null; // 現在選択されているメモのID
         let isEditMode = false; // 編集モード状態
         let originalContent = ''; // 編集前の内容（キャンセル用）
         let originalTitle = ''; // 編集前のタイトル（キャンセル用）
-        
+
         // ページ読み込み時の初期化
         document.addEventListener('DOMContentLoaded', async () => {
             // ログインチェック
@@ -153,20 +132,20 @@
                 window.location.href = 'index.html';
                 return;
             }
-            
+
             // パスコードを表示
             const passcode = localStorage.getItem('passcode');
             if (passcode) {
                 document.getElementById('displayPasscode').textContent = passcode;
             }
-            
+
             // データを読み込み
             await loadNotes();
-            
+
             // イベントリスナーの設定
             setupEventListeners();
         });
-        
+
         /**
          * イベントリスナーの設定
          * 機能: ボタンやフォームのイベントハンドラを登録
@@ -185,7 +164,7 @@
             document.getElementById('cancelPasscodeBtn').addEventListener('click', hideChangePasscodeModal);
             document.getElementById('changePasscodeForm').addEventListener('submit', changePasscode);
         }
-        
+
         /**
          * メモ一覧を読み込む
          * 機能: Supabaseからメモを取得して表示
@@ -194,32 +173,32 @@
         async function loadNotes() {
             const userId = localStorage.getItem('userId');
             const notes = await getNotes(userId);
-            
+
             const noteList = document.getElementById('noteList');
             noteList.innerHTML = '';
-            
+
             if (notes.length === 0) {
                 noteList.innerHTML = '<p class="empty-message">メモがありません</p>';
                 return;
             }
-            
+
             notes.forEach(note => {
                 const noteItem = document.createElement('div');
                 noteItem.className = 'note-item';
                 if (note.id === currentNoteId) {
                     noteItem.classList.add('active');
                 }
-                
+
                 noteItem.innerHTML = `
                     <div class="note-item-title">${escapeHtml(note.title)}</div>
                     <div class="note-item-date">${formatDate(note.updated_at)}</div>
                 `;
-                
+
                 noteItem.addEventListener('click', () => selectNote(note));
                 noteList.appendChild(noteItem);
             });
         }
-        
+
         /**
          * メモを選択して表示
          * 機能: 選択されたメモの内容を表示エリアに表示
@@ -232,30 +211,30 @@
                 }
                 exitEditMode();
             }
-            
+
             currentNoteId = note.id;
-            
+
             // UIの表示
             document.getElementById('noNoteSelected').style.display = 'none';
             document.getElementById('noteEditorContent').style.display = 'block';
-            
+
             // メモの内容を表示
             document.getElementById('noteTitle').value = note.title;
             document.getElementById('noteContent').value = note.content || '';
-            
+
             // Markdownをレンダリング
             const noteView = document.getElementById('noteView');
             noteView.innerHTML = marked.parse(note.content || '');
             noteView.style.display = 'block';
-            
+
             // メモ一覧のアクティブ状態を更新
             await loadNotes();
-            
+
             // アクセスログを記録
             const userId = localStorage.getItem('userId');
             await logAccess(userId, note.id, '閲覧');
         }
-        
+
         /**
          * 新規メモを作成
          * 機能: 空のメモを作成して編集モードに入る
@@ -268,13 +247,13 @@
                 }
                 exitEditMode();
             }
-            
+
             const userId = localStorage.getItem('userId');
             const title = `新しいメモ ${new Date().toLocaleString('ja-JP')}`;
-            
+
             // 新規メモを作成
             const newNote = await createNote(userId, title, '');
-            
+
             if (newNote) {
                 currentNoteId = newNote.id;
                 await loadNotes();
@@ -282,7 +261,7 @@
                 enterEditMode();
             }
         }
-        
+
         /**
          * 編集モードに入る
          * 機能: メモを編集可能な状態にする
@@ -290,22 +269,22 @@
          */
         function enterEditMode() {
             isEditMode = true;
-            
+
             // 元の内容を保存（キャンセル用）
             originalTitle = document.getElementById('noteTitle').value;
             originalContent = document.getElementById('noteContent').value;
-            
+
             // UI切り替え
             document.getElementById('noteTitle').readOnly = false;
             document.getElementById('noteView').style.display = 'none';
             document.getElementById('noteContent').style.display = 'block';
-            
+
             document.getElementById('editBtn').style.display = 'none';
             document.getElementById('saveBtn').style.display = 'inline-block';
             document.getElementById('cancelBtn').style.display = 'inline-block';
             document.getElementById('deleteBtn').style.display = 'none';
         }
-        
+
         /**
          * 編集モードを終了
          * 機能: 編集モードから閲覧モードに戻る
@@ -313,18 +292,18 @@
          */
         function exitEditMode() {
             isEditMode = false;
-            
+
             // UI切り替え
             document.getElementById('noteTitle').readOnly = true;
             document.getElementById('noteView').style.display = 'block';
             document.getElementById('noteContent').style.display = 'none';
-            
+
             document.getElementById('editBtn').style.display = 'inline-block';
             document.getElementById('saveBtn').style.display = 'none';
             document.getElementById('cancelBtn').style.display = 'none';
             document.getElementById('deleteBtn').style.display = 'inline-block';
         }
-        
+
         /**
          * メモを保存
          * 機能: 編集したメモをSupabaseに保存
@@ -333,29 +312,29 @@
         async function saveNote() {
             const title = document.getElementById('noteTitle').value.trim();
             const content = document.getElementById('noteContent').value;
-            
+
             if (!title) {
                 alert('タイトルを入力してください');
                 return;
             }
-            
+
             // メモを更新
             const updated = await updateNote(currentNoteId, title, content);
-            
+
             if (updated) {
                 // Markdownをレンダリング
                 const noteView = document.getElementById('noteView');
                 noteView.innerHTML = marked.parse(content || '');
-                
+
                 exitEditMode();
                 await loadNotes();
-                
+
                 // アクセスログを記録
                 const userId = localStorage.getItem('userId');
                 await logAccess(userId, currentNoteId, '編集');
             }
         }
-        
+
         /**
          * 編集をキャンセル
          * 機能: 編集内容を破棄して元の状態に戻す
@@ -366,11 +345,11 @@
                 // 元の内容に戻す
                 document.getElementById('noteTitle').value = originalTitle;
                 document.getElementById('noteContent').value = originalContent;
-                
+
                 exitEditMode();
             }
         }
-        
+
         /**
          * メモを削除
          * 機能: 選択中のメモを削除
@@ -379,12 +358,12 @@
         async function deleteNote() {
             if (confirm('このメモを削除しますか？')) {
                 const deleted = await deleteNoteById(currentNoteId);
-                
+
                 if (deleted) {
                     currentNoteId = null;
                     document.getElementById('noNoteSelected').style.display = 'block';
                     document.getElementById('noteEditorContent').style.display = 'none';
-                    
+
                     await loadNotes();
                 }
             }
@@ -397,26 +376,26 @@
          */
         async function deleteAccountConfirm() {
             const userId = localStorage.getItem('userId');
-            
+
             // 三重確認
             if (!confirm('⚠️ 重要な警告\n\nアカウントを削除しますか？\n\n以下のすべてのデータが完全に削除されます：\n・すべてのメモ\n・すべてのアクセスログ\n・アカウント情報\n\nこの操作は取り消せません。')) {
                 return;
             }
-            
+
             if (!confirm('本当に削除してもよろしいですか？\nもう一度確認してください。')) {
                 return;
             }
-            
+
             if (!confirm('最終確認です。本当にアカウントを削除しますか？')) {
                 return;
             }
-            
+
             // 削除実行
             const result = await deleteUserAccount(userId);
-            
+
             if (result.success) {
                 alert(result.message + '\n\nログアウトします。');
-                
+
                 // ログイン情報をローカルストレージから削除してログイン画面へ
                 localStorage.removeItem('userId');
                 localStorage.removeItem('passcode');
@@ -425,7 +404,7 @@
                 alert('エラー: ' + result.message);
             }
         }
-        
+
         /**
          * ログ確認ページへ移動
          * 機能: ログ確認ページを開く
@@ -434,7 +413,7 @@
         function viewLogs() {
             window.location.href = 'logs.html';
         }
-        
+
         /**
          * ログアウト
          * 機能: ログイン情報をローカルストレージから削除してログイン画面に戻る
@@ -448,7 +427,7 @@
                 window.location.href = 'index.html';
             }
         }
-        
+
         /**
          * パスコード変更モーダルを表示
          * 機能: パスコード変更用のダイアログを表示
@@ -460,7 +439,7 @@
             document.getElementById('confirmPasscode').value = '';
             document.getElementById('passcodeMessage').textContent = '';
         }
-        
+
         /**
          * パスコード変更モーダルを非表示
          * 機能: パスコード変更ダイアログを閉じる
@@ -469,7 +448,7 @@
         function hideChangePasscodeModal() {
             document.getElementById('changePasscodeModal').style.display = 'none';
         }
-        
+
         /**
          * パスコードを変更
          * 機能: 新しいパスコードをSupabaseに保存
@@ -477,35 +456,35 @@
          */
         async function changePasscode(e) {
             e.preventDefault();
-            
+
             const newPasscode = document.getElementById('newPasscode').value;
             const confirmPasscode = document.getElementById('confirmPasscode').value;
             const messageDiv = document.getElementById('passcodeMessage');
-            
+
             // バリデーション
             if (newPasscode.length !== 12 || !/^[0-9A-Z]{12}$/i.test(newPasscode)) {
                 messageDiv.textContent = 'パスコードは12桁の英数字(0-9, A-Z)で入力してください';
                 messageDiv.className = 'message error';
                 return;
             }
-            
+
             if (newPasscode !== confirmPasscode) {
                 messageDiv.textContent = 'パスコードが一致しません';
                 messageDiv.className = 'message error';
                 return;
             }
-            
+
             // パスコード変更処理
             const userId = localStorage.getItem('userId');
             const result = await updatePasscode(userId, newPasscode);
-            
+
             if (result.success) {
                 messageDiv.textContent = 'パスコードを変更しました';
                 messageDiv.className = 'message success';
-                
+
                 // ローカルストレージを更新
                 localStorage.setItem('passcode', newPasscode);
-                
+
                 setTimeout(() => {
                     hideChangePasscodeModal();
                 }, 1500);
@@ -514,7 +493,7 @@
                 messageDiv.className = 'message error';
             }
         }
-        
+
         /**
          * HTMLエスケープ
          * 機能: XSS攻撃を防ぐためHTMLをエスケープ
@@ -525,7 +504,7 @@
             div.textContent = text;
             return div.innerHTML;
         }
-        
+
         /**
          * 日付をフォーマット
          * 機能: ISO日付を読みやすい形式に変換
@@ -543,4 +522,5 @@
         }
     </script>
 </body>
+
 </html>

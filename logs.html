@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>メモ共有アプリ - ログ確認</title>
     <link rel="stylesheet" href="style.css">
-    
-    <!-- PWA対応 -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4a90e2">
+
+    <!-- iOS向けメタタグ -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="memo.">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <meta name="theme-color" content="#4a90e2">
 </head>
+
 <body>
     <div class="app-container">
         <!-- ヘッダー -->
@@ -61,7 +62,7 @@
          * 機能: アクセスログの詳細表示と管理
          * 作成理由: ユーザーが詳細なログ情報を確認できるようにするため
          */
-        
+
         // ページ読み込み時の初期化
         document.addEventListener('DOMContentLoaded', async () => {
             // ログインチェック
@@ -70,20 +71,20 @@
                 window.location.href = 'index.html';
                 return;
             }
-            
+
             // パスコードを表示
             const passcode = localStorage.getItem('passcode');
             if (passcode) {
                 document.getElementById('displayPasscode').textContent = passcode;
             }
-            
+
             // ログを読み込み
             await loadAllLogs();
-            
+
             // イベントリスナーの設定
             setupEventListeners();
         });
-        
+
         /**
          * イベントリスナーの設定
          * 機能: ボタンのイベントハンドラを登録
@@ -97,7 +98,7 @@
             document.getElementById('refreshBtn').addEventListener('click', loadAllLogs);
             document.getElementById('deleteOldLogsBtn').addEventListener('click', deleteOldLogsConfirm);
         }
-        
+
         /**
          * すべてのログを読み込む
          * 機能: Supabaseからすべてのアクセスログを取得して表示
@@ -106,20 +107,20 @@
         async function loadAllLogs() {
             const userId = localStorage.getItem('userId');
             const logs = await getAccessLog(userId);
-            
+
             const logsList = document.getElementById('logsList');
             logsList.innerHTML = '';
-            
+
             if (logs.length === 0) {
                 logsList.innerHTML = '<p class="empty-message" style="text-align: center; padding: var(--spacing-xl);">ログがありません</p>';
                 return;
             }
-            
+
             // すべてのログを表示
             logs.forEach(log => {
                 const logItem = document.createElement('div');
                 logItem.className = 'log-item';
-                
+
                 logItem.innerHTML = `
                     <div class="log-header">
                         <span class="log-action">${escapeHtml(log.action)}</span>
@@ -152,7 +153,7 @@
                 logsList.appendChild(logItem);
             });
         }
-        
+
         /**
          * 古いログを削除（確認ダイアログ付き）
          * 機能: 14日より前のログを削除
@@ -162,10 +163,10 @@
             if (!confirm('⚠️ 確認\n\n14日より前のログを削除しますか？\nこの操作は取り消せません。')) {
                 return;
             }
-            
+
             const userId = localStorage.getItem('userId');
             const result = await deleteOldLogs(userId);
-            
+
             if (result.success) {
                 alert(result.message);
                 await loadAllLogs();
@@ -173,7 +174,7 @@
                 alert('エラー: ' + result.message);
             }
         }
-        
+
         /**
          * ログアウト
          * 機能: ログイン情報をローカルストレージから削除してログイン画面に戻る
@@ -187,7 +188,7 @@
                 window.location.href = 'index.html';
             }
         }
-        
+
         /**
          * HTMLエスケープ
          * 機能: XSS攻撃を防ぐためHTMLをエスケープ
@@ -198,7 +199,7 @@
             div.textContent = text;
             return div.innerHTML;
         }
-        
+
         /**
          * 日付をフォーマット
          * 機能: ISO日付を読みやすい形式に変換
@@ -217,4 +218,5 @@
         }
     </script>
 </body>
+
 </html>

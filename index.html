@@ -6,15 +6,14 @@
     <title>メモ共有アプリ - ログイン</title>
     <link rel="stylesheet" href="style.css">
     
-    <!-- PWA対応 -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4a90e2">
+    <!-- iOS向けメタタグ -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="memo.">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <meta name="theme-color" content="#4a90e2">
 </head>
 <body>
     <div class="container">
@@ -153,22 +152,7 @@
             }
         });
 
-        /**
-         * Service Workerの登録
-         * 機能: PWA機能を有効化
-         * 作成理由: オフライン対応とアプリのインストール機能を提供するため
-         */
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then((registration) => {
-                        console.log('Service Worker registered:', registration);
-                    })
-                    .catch((error) => {
-                        console.log('Service Worker registration failed:', error);
-                    });
-            });
-        }
+
     </script>
 </body>
 </html>
