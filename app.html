@@ -40,7 +40,7 @@
         </header>
 
         <!-- メインコンテンツ -->
-        <div class="main-content">
+        <div class="main-content" id="mainContent">
             <!-- サイドバー: メモ一覧 -->
             <aside class="sidebar">
                 <div class="sidebar-header">
@@ -61,6 +61,7 @@
 
                 <div id="noteEditorContent" class="note-editor-content" style="display: none;">
                     <div class="note-header">
+                        <button id="backToListBtn" class="btn btn-secondary mobile-only">← 戻る</button>
                         <input type="text" id="noteTitle" placeholder="メモのタイトル" class="note-title-input" readonly>
                         <div class="note-actions">
                             <button id="editBtn" class="btn btn-primary">編集</button>
@@ -184,6 +185,23 @@
             document.getElementById('cancelPasscodeBtn').addEventListener('click', hideChangePasscodeModal);
             document.getElementById('changePasscodeForm').addEventListener('submit', changePasscode);
             document.getElementById('noteView').addEventListener('click', handleCheckboxClick);
+            document.getElementById('backToListBtn').addEventListener('click', showNoteList);
+        }
+
+        /**
+         * モバイル表示で一覧画面を表示
+         * 機能: 詳細表示エリアを隠す
+         */
+        function showNoteList() {
+            document.getElementById('mainContent').classList.remove('show-detail');
+        }
+
+        /**
+         * 詳細画面を表示
+         * 機能: 詳細表示エリアを表示状態にする
+         */
+        function showNoteDetail() {
+            document.getElementById('mainContent').classList.add('show-detail');
         }
 
         /**
@@ -248,8 +266,11 @@
                     noteItem.classList.add('active');
                 }
 
+                const preview = note.content ? note.content.split('\n')[0].substring(0, 50) : '内容なし';
+
                 noteItem.innerHTML = `
                     <div class="note-item-title">${escapeHtml(note.title)}</div>
+                    <div class="note-item-preview">${escapeHtml(preview)}${preview.length >= 50 ? '...' : ''}</div>
                     <div class="note-item-date">${formatDate(note.updated_at)}</div>
                 `;
 
@@ -276,6 +297,7 @@
             // UIの表示
             document.getElementById('noNoteSelected').style.display = 'none';
             document.getElementById('noteEditorContent').style.display = 'block';
+            showNoteDetail(); // 詳細表示に切り替え (モバイル用)
 
             // メモの内容を表示
             document.getElementById('noteTitle').value = note.title;
