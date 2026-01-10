@@ -15,7 +15,7 @@
 
 html {
     height: 100%;
-    overflow-y: auto;
+    overflow: hidden;
 }
 
 :root {
@@ -58,8 +58,13 @@ body {
     background-color: var(--bg-secondary);
     color: var(--text-primary);
     line-height: 1.6;
-    overflow-y: auto;
-    min-height: 100%;
+    overflow: hidden;
+    height: 100%;
+    /* iOSでのバウンスやプルダウン更新を防止 */
+    overscroll-behavior: none;
+    position: fixed;
+    /* 画面全体の固定を確実にする */
+    width: 100%;
 }
 
 /* ===============================================
@@ -270,11 +275,14 @@ body {
    アプリ画面
    =============================================== */
 .app-container {
-    min-height: 100%;
+    height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    background-color: var(--bg-primary);
+    overflow: hidden;
 }
+
 
 .app-header {
     background-color: var(--bg-primary);
@@ -329,27 +337,26 @@ body {
 .main-content {
     display: flex;
     flex: 1;
-    min-height: 60vh;
-    /* 親要素に最小高さを確保（ビューポートの60%） */
-    overflow: auto;
-    /* 子要素が大きくなった場合にスクロール可能に */
+    overflow: hidden;
 }
 
 /* ===============================================
    サイドバー（メモ一覧）
    =============================================== */
 .sidebar {
-    width: 300px;
-    background-color: var(--bg-primary);
+    width: 280px;
     border-right: 2px solid var(--border-color);
+    background-color: var(--bg-secondary);
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    overflow: hidden;
+    /* 子要素（note-list）でスクロールさせる */
 }
 
 .sidebar-header {
     padding: var(--spacing-md);
     border-bottom: 2px solid var(--border-color);
+    flex-shrink: 0;
 }
 
 .sidebar-header h2 {
@@ -365,6 +372,7 @@ body {
     flex: 1;
     overflow-y: auto;
     padding: var(--spacing-sm);
+
 }
 
 .note-item {
@@ -523,7 +531,6 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    /* 子要素でスクロールを管理 */
 }
 
 .no-note-selected {
@@ -819,13 +826,12 @@ body {
     .note-editor {
         display: none;
         width: 100%;
-        height: 100vh;
-        /* ビューポート全体を確保 */
+        height: 100%;
         position: fixed;
         top: 0;
         left: 0;
         z-index: 100;
-        background-color: var(--bg-primary);
+        background-color: var(--bg-secondary);
         flex-direction: column;
         overflow: hidden;
     }
