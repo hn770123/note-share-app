@@ -819,8 +819,10 @@ body {
     /* モバイルでの画面切り替えロジック */
     .sidebar {
         width: 100%;
-        max-height: none;
-        display: block;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
     }
 
     .note-editor {
