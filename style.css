@@ -25,26 +25,26 @@ html {
     --success-color: #27ae60;
     --danger-color: #e74c3c;
     --warning-color: #f39c12;
-    
+
     /* 背景色 */
     --bg-primary: #ffffff;
     --bg-secondary: #f5f7fa;
     --bg-dark: #2c3e50;
-    
+
     /* テキスト色 */
     --text-primary: #2c3e50;
     --text-secondary: #7f8c8d;
     --text-light: #ffffff;
-    
+
     /* ボーダー */
     --border-color: #dfe6e9;
     --border-radius: 8px;
-    
+
     /* シャドウ */
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
     --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
-    
+
     /* スペーシング */
     --spacing-xs: 4px;
     --spacing-sm: 8px;
@@ -126,7 +126,7 @@ body {
     color: var(--text-primary);
 }
 
-.form-container > p {
+.form-container>p {
     margin-bottom: var(--spacing-md);
     color: var(--text-secondary);
 }
@@ -320,8 +320,10 @@ body {
 .main-content {
     display: flex;
     flex: 1;
-    min-height: 60vh; /* 親要素に最小高さを確保（ビューポートの60%） */
-    overflow: auto; /* 子要素が大きくなった場合にスクロール可能に */
+    min-height: 60vh;
+    /* 親要素に最小高さを確保（ビューポートの60%） */
+    overflow: auto;
+    /* 子要素が大きくなった場合にスクロール可能に */
 }
 
 /* ===============================================
@@ -502,8 +504,10 @@ body {
     background-color: var(--bg-primary);
     display: flex;
     flex-direction: column;
-    min-height: 50vh; /* 親要素に最小高さを確保（ビューポートの50%） */
-    overflow: auto; /* 子要素が大きくなった場合にスクロール可能に */
+    min-height: 50vh;
+    /* 親要素に最小高さを確保（ビューポートの50%） */
+    overflow: auto;
+    /* 子要素が大きくなった場合にスクロール可能に */
 }
 
 .no-note-selected {
@@ -559,10 +563,12 @@ body {
 .note-content {
     flex: 1;
     padding: var(--spacing-lg);
-    overflow: auto; /* 子要素が大きくなった場合にスクロール可能に */
+    overflow: auto;
+    /* 子要素が大きくなった場合にスクロール可能に */
     display: flex;
     flex-direction: column;
-    min-height: 45vh; /* 親要素に最小高さを確保（ビューポートの45%） */
+    min-height: 45vh;
+    /* 親要素に最小高さを確保（ビューポートの45%） */
 }
 
 .note-view {
@@ -572,7 +578,9 @@ body {
     overflow-y: auto;
 }
 
-.note-view h1, .note-view h2, .note-view h3 {
+.note-view h1,
+.note-view h2,
+.note-view h3 {
     margin-top: var(--spacing-lg);
     margin-bottom: var(--spacing-sm);
     color: var(--text-primary);
@@ -594,9 +602,23 @@ body {
     margin-bottom: var(--spacing-md);
 }
 
-.note-view ul, .note-view ol {
+.note-view ul,
+.note-view ol {
     margin-left: var(--spacing-lg);
     margin-bottom: var(--spacing-md);
+}
+
+.note-view .task-list-item {
+    list-style-type: none;
+    margin-left: 0;
+}
+
+.note-view input[type="checkbox"] {
+    cursor: pointer;
+    margin-right: var(--spacing-xs);
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
 }
 
 .note-view code {
@@ -629,13 +651,15 @@ body {
 
 .note-textarea {
     width: 100%;
-    min-height: 40vh; /* vh単位で最小高さを指定 */
+    min-height: 40vh;
+    /* vh単位で最小高さを指定 */
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
     padding: var(--spacing-md);
     font-size: 1rem;
     font-family: 'Courier New', monospace;
-    resize: vertical; /* ユーザーが縦方向にリサイズ可能 */
+    resize: vertical;
+    /* ユーザーが縦方向にリサイズ可能 */
 }
 
 .note-textarea:focus {
@@ -693,75 +717,77 @@ body {
         flex-direction: column;
         gap: var(--spacing-sm);
     }
-    
+
     .header-info {
         flex-direction: column;
         align-items: stretch;
         width: 100%;
         gap: var(--spacing-sm);
     }
-    
+
     .user-info {
         justify-content: center;
     }
-    
+
     .header-actions {
         width: 100%;
         justify-content: space-between;
         flex-wrap: wrap;
     }
-    
+
     .main-content {
         flex-direction: column;
     }
-    
+
     .sidebar {
         width: 100%;
         border-right: none;
         border-bottom: 2px solid var(--border-color);
         max-height: 40vh;
     }
-    
+
     /* モバイルでのメモ選択エリア拡張 */
     .note-item {
         min-height: 70px;
         padding: var(--spacing-lg);
         touch-action: manipulation;
     }
-    
+
     .note-item-title {
         font-size: 1.1rem;
     }
-    
+
     .note-header {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .note-actions {
         justify-content: space-between;
     }
-    
+
     /* モバイルでのメモ入力エリアの高さ最適化 */
     .note-textarea {
-        min-height: 50vh; /* モバイルでより高さを確保（vh単位） */
-        font-size: 16px; /* iOS Safariでのズーム防止 */
+        min-height: 50vh;
+        /* モバイルでより高さを確保（vh単位） */
+        font-size: 16px;
+        /* iOS Safariでのズーム防止 */
     }
-    
+
     .note-content {
         /* モバイルでパディングを減らして入力エリアを広げる */
         padding: var(--spacing-md);
     }
-    
+
     .logs-header {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .logs-actions {
         flex-direction: column;
     }
-    
+
     .log-details {
         grid-template-columns: 1fr;
     }

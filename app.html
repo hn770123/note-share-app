@@ -126,6 +126,21 @@
 
         // ページ読み込み時の初期化
         document.addEventListener('DOMContentLoaded', async () => {
+            // markedのレンダリング設定（チェックボックスを有効化）
+            if (typeof marked !== 'undefined') {
+                marked.use({
+                    renderer: {
+                        listitem(text, task, checked) {
+                            if (task) {
+                                // disabled属性を除去
+                                return `<li class="task-list-item"><input type="checkbox" ${checked ? 'checked' : ''}> ${text}</li>`;
+                            }
+                            return `<li>${text}</li>`;
+                        }
+                    }
+                });
+            }
+
             // ログインチェック
             const userId = localStorage.getItem('userId');
             if (!userId) {
@@ -163,6 +178,45 @@
             document.getElementById('changePasscodeBtn').addEventListener('click', showChangePasscodeModal);
             document.getElementById('cancelPasscodeBtn').addEventListener('click', hideChangePasscodeModal);
             document.getElementById('changePasscodeForm').addEventListener('submit', changePasscode);
+            document.getElementById('noteView').addEventListener('click', handleCheckboxClick);
+        }
+
+        /**
+         * プレビュー内のチェックボックスクリックを処理
+         * 機能: チェックボックスの変更をメモリ上のMarkdownテキストに同期
+         * 作成理由: 閲覧モードのままタスクの完了状態を切り替えられるようにするため
+         */
+        function handleCheckboxClick(e) {
+            // チェックボックス以外は無視
+            if (e.target.type !== 'checkbox' || isEditMode) return;
+
+            // プレビュー内の全チェックボックスを取得
+            const checkboxes = Array.from(document.querySelectorAll('#noteView input[type="checkbox"]'));
+            const targetIndex = checkboxes.indexOf(e.target);
+
+            if (targetIndex === -1) return;
+
+            // メモリ上のコンテンツを取得
+            const textarea = document.getElementById('noteContent');
+            let content = textarea.value;
+
+            let currentIndex = 0;
+            // Markdownのチェックボックス記法 [ ] または [x] を置換
+            const newContent = content.replace(/\[([ xX])\]/g, (match, p1) => {
+                if (currentIndex === targetIndex) {
+                    currentIndex++;
+                    return e.target.checked ? '[x]' : '[ ]';
+                }
+                currentIndex++;
+                return match;
+            });
+
+            // メモリ上の値を更新
+            textarea.value = newContent;
+
+            // プレビューを再描画（通信は発生しない）
+            const noteView = document.getElementById('noteView');
+            noteView.innerHTML = marked.parse(newContent);
         }
 
         /**
