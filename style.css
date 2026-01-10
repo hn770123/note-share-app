@@ -774,14 +774,26 @@ body {
         flex-direction: row;
         align-items: center;
         gap: var(--spacing-sm);
+        flex-shrink: 0;
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-bottom: 1px solid var(--border-color);
     }
 
     .note-title-input {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
+        padding: var(--spacing-xs);
+        min-width: 0;
     }
 
     .note-actions {
-        justify-content: flex-end;
+        display: flex;
+        gap: var(--spacing-xs);
+        flex-shrink: 0;
+    }
+
+    .note-actions .btn {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: 0.85rem;
     }
 
     /* モバイルでの画面切り替えロジック */
@@ -800,6 +812,8 @@ body {
         left: 0;
         z-index: 100;
         background-color: var(--bg-primary);
+        flex-direction: column;
+        overflow: hidden;
     }
 
     /* 詳細表示時のモバイルレイアウト */
@@ -817,15 +831,22 @@ body {
 
     /* モバイルでのメモ入力エリアの高さ最適化 */
     .note-textarea {
-        min-height: 50vh;
-        /* モバイルでより高さを確保（vh単位） */
+        flex: 1;
+        min-height: 200px;
         font-size: 16px;
-        /* iOS Safariでのズーム防止 */
+        width: 100%;
     }
 
     .note-content {
-        /* モバイルでパディングを減らして入力エリアを広げる */
-        padding: var(--spacing-md);
+        flex: 1;
+        padding: var(--spacing-sm);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .note-view {
+        flex: 1;
     }
 
     .logs-header {
