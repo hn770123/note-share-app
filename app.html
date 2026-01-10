@@ -59,14 +59,14 @@
                     <p>メモを選択するか、新規作成してください</p>
                 </div>
 
-                <div id="noteEditorContent" class="note-editor-content" style="display: none;">
+                <div id="noteEditorContent" class="note-editor-content">
                     <div class="note-header">
                         <button id="backToListBtn" class="btn btn-secondary mobile-only">← 戻る</button>
                         <input type="text" id="noteTitle" placeholder="メモのタイトル" class="note-title-input" readonly>
                         <div class="note-actions">
                             <button id="editBtn" class="btn btn-primary">編集</button>
-                            <button id="saveBtn" class="btn btn-success" style="display: none;">保存</button>
-                            <button id="cancelBtn" class="btn btn-secondary" style="display: none;">キャンセル</button>
+                            <button id="saveBtn" class="btn btn-success hidden">保存</button>
+                            <button id="cancelBtn" class="btn btn-secondary hidden">キャンセル</button>
                             <button id="deleteBtn" class="btn btn-danger">削除</button>
                         </div>
                     </div>
@@ -78,8 +78,8 @@
                         </div>
 
                         <!-- 編集モード -->
-                        <textarea id="noteContent" class="note-textarea" placeholder="ここにメモを入力してください（Markdown形式対応）"
-                            style="display: none;"></textarea>
+                        <textarea id="noteContent" class="note-textarea hidden"
+                            placeholder="ここにメモを入力してください（Markdown形式対応）"></textarea>
                     </div>
                 </div>
             </main>
@@ -87,7 +87,7 @@
     </div>
 
     <!-- パスコード変更モーダル -->
-    <div id="changePasscodeModal" class="modal" style="display: none;">
+    <div id="changePasscodeModal" class="modal hidden">
         <div class="modal-content">
             <h2>パスコード変更</h2>
             <form id="changePasscodeForm">
@@ -202,6 +202,8 @@
          */
         function showNoteDetail() {
             document.getElementById('mainContent').classList.add('show-detail');
+            // node-editor-contentが表示されるように制御
+            document.getElementById('noteEditorContent').style.display = 'flex';
         }
 
         /**
@@ -295,8 +297,9 @@
             currentNoteId = note.id;
 
             // UIの表示
-            document.getElementById('noNoteSelected').style.display = 'none';
-            document.getElementById('noteEditorContent').style.display = 'block';
+            document.getElementById('noNoteSelected').classList.add('hidden');
+            document.getElementById('noteEditorContent').classList.remove('hidden');
+            document.getElementById('noteEditorContent').style.display = 'flex';
             showNoteDetail(); // 詳細表示に切り替え (モバイル用)
 
             // メモの内容を表示
@@ -306,7 +309,7 @@
             // Markdownをレンダリング
             const noteView = document.getElementById('noteView');
             noteView.innerHTML = marked.parse(note.content || '');
-            noteView.style.display = 'block';
+            noteView.classList.remove('hidden'); // Changed from style.display = 'block'
 
             // メモ一覧のアクティブ状態を更新
             await loadNotes();
@@ -357,13 +360,13 @@
 
             // UI切り替え
             document.getElementById('noteTitle').readOnly = false;
-            document.getElementById('noteView').style.display = 'none';
-            document.getElementById('noteContent').style.display = 'block';
+            document.getElementById('noteView').classList.add('hidden'); // Changed from style.display = 'none'
+            document.getElementById('noteContent').classList.remove('hidden'); // Changed from style.display = 'block'
 
-            document.getElementById('editBtn').style.display = 'none';
-            document.getElementById('saveBtn').style.display = 'inline-block';
-            document.getElementById('cancelBtn').style.display = 'inline-block';
-            document.getElementById('deleteBtn').style.display = 'none';
+            document.getElementById('editBtn').classList.add('hidden'); // Changed from style.display = 'none'
+            document.getElementById('saveBtn').classList.remove('hidden'); // Changed from style.display = 'inline-block'
+            document.getElementById('cancelBtn').classList.remove('hidden'); // Changed from style.display = 'inline-block'
+            document.getElementById('deleteBtn').classList.add('hidden'); // Changed from style.display = 'none'
         }
 
         /**
@@ -376,13 +379,13 @@
 
             // UI切り替え
             document.getElementById('noteTitle').readOnly = true;
-            document.getElementById('noteView').style.display = 'block';
-            document.getElementById('noteContent').style.display = 'none';
+            document.getElementById('noteView').classList.remove('hidden');
+            document.getElementById('noteContent').classList.add('hidden');
 
-            document.getElementById('editBtn').style.display = 'inline-block';
-            document.getElementById('saveBtn').style.display = 'none';
-            document.getElementById('cancelBtn').style.display = 'none';
-            document.getElementById('deleteBtn').style.display = 'inline-block';
+            document.getElementById('editBtn').classList.remove('hidden');
+            document.getElementById('saveBtn').classList.add('hidden');
+            document.getElementById('cancelBtn').classList.add('hidden');
+            document.getElementById('deleteBtn').classList.remove('hidden');
         }
 
         /**
@@ -516,10 +519,8 @@
          * 作成理由: ユーザーがパスコードを変更できるようにするため
          */
         function showChangePasscodeModal() {
-            document.getElementById('changePasscodeModal').style.display = 'flex';
-            document.getElementById('newPasscode').value = '';
-            document.getElementById('confirmPasscode').value = '';
-            document.getElementById('passcodeMessage').textContent = '';
+            document.getElementById('changePasscodeForm').reset();
+            document.getElementById('changePasscodeModal').classList.remove('hidden');
         }
 
         /**
@@ -528,7 +529,7 @@
          * 作成理由: ユーザーがキャンセルできるようにするため
          */
         function hideChangePasscodeModal() {
-            document.getElementById('changePasscodeModal').style.display = 'none';
+            document.getElementById('changePasscodeModal').classList.add('hidden');
         }
 
         /**
