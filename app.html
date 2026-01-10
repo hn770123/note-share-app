@@ -130,7 +130,12 @@
             if (typeof marked !== 'undefined') {
                 marked.use({
                     renderer: {
-                        listitem(text, task, checked) {
+                        listitem(item) {
+                            // marked v11以降は第1引数がオブジェクト、それ以前は複数の引数(text, task, checked)
+                            const text = typeof item === 'object' ? item.text : arguments[0];
+                            const task = typeof item === 'object' ? item.task : arguments[1];
+                            const checked = typeof item === 'object' ? item.checked : arguments[2];
+
                             if (task) {
                                 // disabled属性を除去
                                 return `<li class="task-list-item"><input type="checkbox" ${checked ? 'checked' : ''}> ${text}</li>`;
