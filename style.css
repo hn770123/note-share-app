@@ -14,8 +14,7 @@
 }
 
 html {
-    height: 100%;
-    overflow: hidden;
+    min-height: 100%;
 }
 
 :root {
@@ -58,12 +57,7 @@ body {
     background-color: var(--bg-secondary);
     color: var(--text-primary);
     line-height: 1.6;
-    overflow: hidden;
-    height: 100%;
-    /* iOSでのバウンスやプルダウン更新を防止 */
-    overscroll-behavior: none;
-    position: fixed;
-    /* 画面全体の固定を確実にする */
+    min-height: 100%;
     width: 100%;
 }
 
@@ -275,12 +269,11 @@ body {
    アプリ画面
    =============================================== */
 .app-container {
-    height: 100vh;
-    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     background-color: var(--bg-primary);
-    overflow: hidden;
 }
 
 
@@ -761,13 +754,13 @@ body {
 
     .main-content {
         flex-direction: column;
+        overflow: visible;
     }
 
     .sidebar {
         width: 100%;
         border-right: none;
         border-bottom: 2px solid var(--border-color);
-        max-height: 40vh;
     }
 
     /* モバイルでのメモ選択エリア拡張 */
@@ -819,10 +812,12 @@ body {
     /* モバイルでの画面切り替えロジック */
     .sidebar {
         width: 100%;
-        flex: 1;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
+    }
+
+    .note-list {
+        overflow: visible;
     }
 
     .note-editor {
