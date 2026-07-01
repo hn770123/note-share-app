@@ -587,45 +587,59 @@ body {
 }
 
 .note-view {
-    padding: var(--spacing-md);
-    line-height: 1.8;
+    padding: var(--spacing-lg);
+    line-height: 1.6;
     flex: 1;
     overflow-y: auto;
+    color: var(--text-primary);
+    word-wrap: break-word;
 }
 
+/* GitHub-like Markdown Headers */
 .note-view h1,
 .note-view h2,
 .note-view h3 {
-    margin-top: var(--spacing-lg);
-    margin-bottom: var(--spacing-sm);
-    color: var(--text-primary);
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.note-view h1,
+.note-view h2 {
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .note-view h1 {
-    font-size: 2rem;
+    font-size: 2em;
 }
 
 .note-view h2 {
-    font-size: 1.5rem;
+    font-size: 1.5em;
 }
 
 .note-view h3 {
-    font-size: 1.25rem;
+    font-size: 1.25em;
 }
 
 .note-view p {
-    margin-bottom: var(--spacing-md);
+    margin-top: 0;
+    margin-bottom: 16px;
 }
 
+/* Lists */
 .note-view ul,
 .note-view ol {
-    margin-left: var(--spacing-lg);
-    margin-bottom: var(--spacing-md);
+    margin-top: 0;
+    margin-bottom: 16px;
+    padding-left: 2em;
 }
 
 .note-view .task-list-item {
     list-style-type: none;
     margin-left: 0;
+    padding-left: 0;
 }
 
 .note-view input[type="checkbox"] {
@@ -636,32 +650,84 @@ body {
     vertical-align: middle;
 }
 
-.note-view code {
+/* GitHub-like Table Styles */
+.note-view table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    overflow: auto;
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+.note-view table th {
+    font-weight: 600;
     background-color: var(--bg-secondary);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
+}
+
+.note-view table th,
+.note-view table td {
+    padding: 6px 13px;
+    border: 1px solid var(--border-color);
+}
+
+.note-view table tr {
+    background-color: var(--bg-primary);
+    border-top: 1px solid var(--border-color);
+}
+
+.note-view table tr:nth-child(2n) {
+    background-color: var(--bg-secondary);
+}
+
+/* Code Styles */
+.note-view code {
+    padding: 0.2em 0.4em;
+    margin: 0;
+    font-size: 85%;
+    white-space: break-spaces;
+    background-color: var(--bg-secondary);
+    border-radius: 6px;
+    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
 }
 
 .note-view pre {
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
     background-color: var(--bg-secondary);
-    padding: var(--spacing-md);
-    border-radius: var(--border-radius);
-    overflow-x: auto;
-    margin-bottom: var(--spacing-md);
+    border-radius: 6px;
+    margin-bottom: 16px;
 }
 
 .note-view pre code {
-    background-color: transparent;
     padding: 0;
+    margin: 0;
+    font-size: inherit;
+    word-break: normal;
+    white-space: pre;
+    background: transparent;
+    border: 0;
 }
 
+/* Blockquotes */
 .note-view blockquote {
-    border-left: 4px solid var(--primary-color);
-    padding-left: var(--spacing-md);
-    margin: var(--spacing-md) 0;
+    padding: 0 1em;
     color: var(--text-secondary);
+    border-left: 0.25em solid var(--border-color);
+    margin: 0 0 16px 0;
+}
+
+/* Horizontal Rule */
+.note-view hr {
+    height: 0.25em;
+    padding: 0;
+    margin: 24px 0;
+    background-color: var(--border-color);
+    border: 0;
 }
 
 .note-textarea {
